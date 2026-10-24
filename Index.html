@@ -14,7 +14,7 @@
         }
 
         body {
-            background: #020617;
+            background: linear-gradient(180deg, #180814 0%, #280f23 50%, #180814 100%);
             color: #ffffff;
             font-family: Arial, sans-serif;
             min-height: 100vh;
@@ -23,7 +23,8 @@
 
         /* MENU DE NAVEGAÇÃO */
         .menu {
-            background: #10172a;
+            background: rgba(35, 14, 30, 0.92);
+            backdrop-filter: blur(10px);
             padding: 15px 25px;
             display: flex;
             justify-content: space-between;
@@ -31,132 +32,157 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(225, 29, 72, 0.25);
         }
 
         .menu-logo {
             font-weight: bold;
-            color: #f4ad4e;
+            color: #f472b6;
             font-size: 1.3rem;
+            letter-spacing: 0.5px;
         }
 
         .btn-cta-menu {
-            background: #f4ad4e;
-            color: #141519;
-            padding: 8px 16px;
-            border-radius: 8px;
+            background: #e11d48;
+            color: #ffffff;
+            padding: 9px 18px;
+            border-radius: 20px;
             font-weight: bold;
             text-decoration: none;
             font-size: 14px;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4);
+        }
+
+        .btn-cta-menu:hover {
+            background: #be123c;
+            transform: translateY(-1px);
         }
 
         /* HERO / APRESENTAÇÃO */
         .hero {
-            padding: 60px 20px;
+            padding: 70px 20px 50px;
             text-align: center;
-            max-width: 800px;
+            max-width: 820px;
             margin: 0 auto;
         }
 
         .hero h1 {
-            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-size: clamp(2rem, 5vw, 3.4rem);
             color: #ffffff;
             margin-bottom: 20px;
-            line-height: 1.2;
+            line-height: 1.25;
         }
 
         .hero h1 span {
-            color: #f4ad4e;
+            color: #f472b6;
+            text-shadow: 0 0 20px rgba(244, 114, 182, 0.35);
         }
 
         .hero p {
-            font-size: 1.1rem;
-            color: #cbd5e1;
-            margin-bottom: 30px;
+            font-size: 1.15rem;
+            color: #fce7f3;
+            margin-bottom: 32px;
+            opacity: 0.9;
         }
 
         .btn-principal {
             display: inline-block;
-            background: #f4ad4e;
-            color: #141519;
+            background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+            color: #ffffff;
             font-weight: bold;
-            padding: 16px 32px;
-            border-radius: 12px;
+            padding: 16px 36px;
+            border-radius: 30px;
             font-size: 1.1rem;
             text-decoration: none;
-            box-shadow: 0 8px 20px rgba(244, 173, 78, 0.3);
+            box-shadow: 0 10px 25px rgba(225, 29, 72, 0.45);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
-        /* CARD DE DEMONSTRAÇÃO DO PAINEL */
+        .btn-principal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(225, 29, 72, 0.6);
+        }
+
+        /* DEMONSTRAÇÃO DO PAINEL */
         .preview-container {
-            max-width: 800px;
-            margin: 0 auto 50px;
+            max-width: 820px;
+            margin: 0 auto 60px;
             padding: 0 20px;
         }
 
         .preview-box {
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 16px;
-            padding: 30px 20px;
+            background: rgba(42, 18, 37, 0.75);
+            border: 1px solid rgba(244, 114, 182, 0.25);
+            border-radius: 20px;
+            padding: 35px 25px;
             text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         .preview-box h2 {
-            color: #f4ad4e;
-            margin-bottom: 10px;
-            font-size: 1.5rem;
+            color: #f472b6;
+            margin-bottom: 12px;
+            font-size: 1.6rem;
         }
 
         .preview-box p {
-            color: #94a3b8;
-            font-size: 0.95rem;
+            color: #fce7f3;
+            font-size: 0.98rem;
+            opacity: 0.85;
         }
 
         /* RECURSOS */
         .recursos {
-            max-width: 900px;
+            max-width: 920px;
             margin: 0 auto;
-            padding: 20px 20px 60px;
+            padding: 20px 20px 70px;
         }
 
         .recursos h2 {
             text-align: center;
-            font-size: 1.8rem;
-            margin-bottom: 30px;
+            font-size: 1.9rem;
+            margin-bottom: 35px;
             color: #ffffff;
         }
 
         .grid-recursos {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            gap: 22px;
         }
 
         .card-recurso {
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 12px;
-            padding: 20px;
+            background: rgba(42, 18, 37, 0.65);
+            border: 1px solid rgba(244, 114, 182, 0.18);
+            border-radius: 16px;
+            padding: 24px;
+            transition: border-color 0.3s ease;
+        }
+
+        .card-recurso:hover {
+            border-color: rgba(244, 114, 182, 0.45);
         }
 
         .card-recurso h3 {
-            color: #f4ad4e;
-            font-size: 1.1rem;
+            color: #f472b6;
+            font-size: 1.15rem;
             margin-bottom: 10px;
         }
 
         .card-recurso p {
-            color: #94a3b8;
-            font-size: 0.9rem;
+            color: #fce7f3;
+            font-size: 0.92rem;
+            opacity: 0.82;
         }
 
         footer {
             text-align: center;
             padding: 30px 20px;
-            border-top: 1px solid #1e293b;
-            color: #64748b;
-            font-size: 0.85rem;
+            border-top: 1px solid rgba(244, 114, 182, 0.15);
+            color: #fda4af;
+            font-size: 0.88rem;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -171,15 +197,15 @@
 
     <!-- HERO -->
     <header class="hero">
-        <h1>Transforme as viagens do seu casal num <span>diário inesquecível</span> com o DuoTrip</h1>
-        <p>Um site exclusivo e personalizado para vocês registarem quilómetros, rotas, garagens e memórias na estrada sobre duas rodas.</p>
-        <a href="https://pay.kiwify.com.br/SEU-LINK" class="btn-principal">Quero o Meu DuoTrip 🚀</a>
+        <h1>Eternize cada destino do seu amor num <span>diário inesquecível</span> com o DuoTrip</h1>
+        <p>Um espaço exclusivo e apaixonante para vocês registarem quilómetros, rotas, garagens e memórias na estrada sobre duas rodas.</p>
+        <a href="https://pay.kiwify.com.br/SEU-LINK" class="btn-principal">Quero o Nosso DuoTrip 💖</a>
     </header>
 
     <!-- DEMONSTRAÇÃO -->
     <div class="preview-container">
         <div class="preview-box">
-            <h2>🏍️ O Vosso Espaço Exclusivo na Nuvem</h2>
+            <h2>🏍️ O Vosso Cantinho Exclusivo na Nuvem</h2>
             <p>Painel 100% personalizado com a vossa história, estatísticas de rodagem, fotos de viagens e garagem compartilhada.</p>
         </div>
     </div>
@@ -194,23 +220,23 @@
             </div>
             <div class="card-recurso">
                 <h3>🏍️ Garagem Compartilhada</h3>
-                <p>Apresente as vossas motos ou veículos com os nomes dos proprietários e o histórico de KM acumulado.</p>
+                <p>Apresente as vossas motos com os nomes dos proprietários e o histórico de KM acumulado em cada aventura.</p>
             </div>
             <div class="card-recurso">
                 <h3>🗺️ Álbum de Aventuras</h3>
-                <p>Guarde fotos de capa, relatos detalhados de cada destino e crie uma linha do tempo fantástica.</p>
+                <p>Guarde fotos marcantes, relatos detalhados de cada destino e crie uma linha do tempo inesquecível.</p>
             </div>
             <div class="card-recurso">
                 <h3>☁️ Acesso na Nuvem</h3>
-                <p>Aceda de qualquer telemóvel, tablet ou computador com painel administrativo protegido por e-mail e senha.</p>
+                <p>Aceda de qualquer telemóvel, tablet ou computador com painel seguro e protegido para o casal.</p>
             </div>
         </div>
     </section>
 
     <!-- CHAMADA FINAL -->
-    <div style="text-align: center; padding: 20px 20px 60px;">
-        <h2 style="font-size: 1.8rem; margin-bottom: 20px;">Prontos para eternizar as vossas viagens?</h2>
-        <a href="https://pay.kiwify.com.br/SEU-LINK" class="btn-principal">Garantir o Meu Acesso Agora</a>
+    <div style="text-align: center; padding: 20px 20px 70px;">
+        <h2 style="font-size: 1.8rem; margin-bottom: 20px;">Prontos para criar memórias inesquecíveis?</h2>
+        <a href="https://pay.kiwify.com.br/SEU-LINK" class="btn-principal">Garantir o Nosso Acesso Agora 💕</a>
     </div>
 
     <!-- RODAPÉ -->
