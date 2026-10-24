@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuoTrip - O Diário de Viagens do Seu Casal ❤️</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #020617 0%, #071a35 50%, #020617 100%);
+            color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* MENU DE NAVEGAÇÃO DA LANDING PAGE */
+        .menu {
+            background: rgba(31, 31, 31, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-logo {
+            font-weight: bold;
+            color: #f4ad4e;
+            font-size: 1.3rem;
+        }
+
+        .btn-cta-menu {
+            background: #f4ad4e;
+            color: #141519;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-cta-menu:hover {
+            background: #e89b35;
+        }
+
+        /* HERO / APRESENTAÇÃO PRINCIPAL */
+        .hero {
+            padding: 80px 20px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            color: #fff;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            color: #f4ad4e;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: #cbd5e1;
+            margin-bottom: 30px;
+        }
+
+        .btn-principal {
+            display: inline-block;
+            background: linear-gradient(135deg, #f4ad4e, #e89b35);
+            color: #141519;
+            font-weight: bold;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(244, 173, 78, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-principal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(244, 173, 78, 0.4);
+        }
+
+        /* MOCKUP / PREVIEW DO APP */
+        .preview-container {
+            max-width: 900px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .preview-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .preview-box img {
+            width: 100%;
+            border-radius: 12px;
+            display: block;
+        }
+
+        /* SEÇÃO DE BENEFÍCIOS / RECURSOS */
+        .recursos {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .recursos h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 50px;
+            color: #fff;
+        }
+
+        .grid-recursos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card-recurso {
+            background: #141519;
+            border: 1px solid #35363d;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: left;
+        }
+
+        .card-recurso h3 {
+            color: #f4ad4e;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .card-recurso p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* RODAPÉ */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- MENU DA LANDING PAGE -->
+    <nav class="menu">
+        <div class="menu-logo">DuoTrip ❤️</div>
+        <!-- Altera o link abaixo para o teu link de checkout da Kiwify/Hotmart -->
+        <a href="https://pay.kiwify.com.br/SEU-LINK-DE-PAGAMENTO" class="btn-cta-menu">Comprar Agora</a>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="hero">
+        <h1>Transforme as viagens do seu casal num <span>diário inesquecível</span> com o DuoTrip</h1>
+        <p>Um site exclusivo e personalizado para vocês registarem quilómetros, rotas, garagens e memórias na estrada sobre duas rodas.</p>
+        <a href="https://pay.kiwify.com.br/SEU-LINK-DE-PAGAMENTO" class="btn-principal">Quero o Meu DuoTrip 🚀</a>
+    </header>
+
+    <!-- PREVIEW / IMAGEM ILUSTRATIVA -->
+    <div class="preview-container">
+        <div class="preview-box">
+            <img src="Capacete.jpg" alt="Pré-visualização do DuoTrip" onerror="this.style.display='none'">
+            <p style="margin-top: 15px; color: #f4ad4e; font-weight: bold;">Painel 100% Personalizado com a vossa história ❤️</p>
+        </div>
+    </div>
+
+    <!-- RECURSOS DO PRODUTO -->
+    <section class="recursos">
+        <h2>Tudo o que o vosso relacionamento precisa na estrada</h2>
+        <div class="grid-recursos">
+            <div class="card-recurso">
+                <h3>📊 Estatísticas em Tempo Real</h3>
+                <p>Contador automático de dias juntos, viagens realizadas, quilometragem individual por moto e progresso de metas de rodagem.</p>
+            </div>
+            <div class="card-recurso">
+                <h3>🏍️ Garagem Compartilhada</h3>
+                <p>Apresente as vossas motos ou veículos com os nomes dos proprietários, anos, cores e o histórico de KM acumulado em aventuras.</p>
+            </div>
+            <div class="card-recurso">
+                <h3>🗺️ Álbum de Aventuras</h3>
+                <p>Guarde fotos de capa, relatos detalhados de cada destino e crie uma linha do tempo fantástica das vossas viagens.</p>
+            </div>
+            <div class="card-recurso">
+                <h3>☁️ Nuvem & Multi-dispositivo</h3>
+                <p>Aceda de qualquer telemóvel, tablet ou computador. Os dados estão seguros na nuvem com painel administrativo protegido.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHAMADA FINAL -->
+    <div style="text-align: center; padding: 20px 20px 80px;">
+        <h2 style="font-size: 2rem; margin-bottom: 20px;">Prontos para eternizar as vossas viagens?</h2>
+        <a href="https://pay.kiwify.com.br/SEU-LINK-DE-PAGAMENTO" class="btn-principal">Garantir o Meu Acesso Agora</a>
+    </div>
+
+    <!-- RODAPÉ -->
+    <footer>
+        <p>&copy; 2026 DuoTrip. Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+
+</html>
