@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DuoTrip - O Diário de Viagens do Seu Amor ❤️</title>
+    <title>DuoTrip - O Diário de Viagens do Seu Casal ❤️</title>
     
     <style>
         * {
@@ -14,107 +14,210 @@
         }
 
         body {
-            background: linear-gradient(180deg, #0f051d 0%, #1a0933 50%, #0d031a 100%);
-            color: #f8fafc;
+            background: #020617;
+            color: #ffffff;
             font-family: Arial, sans-serif;
             min-height: 100vh;
             line-height: 1.6;
         }
 
-        /* MENU DE NAVEGAÇÃO DA LANDING PAGE */
+        /* MENU DE NAVEGAÇÃO */
         .menu {
-            background: rgba(20, 10, 35, 0.85);
-            backdrop-filter: blur(12px);
-            padding: 16px 30px;
+            background: #10172a;
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 1px solid rgba(244, 114, 182, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .menu-logo {
             font-weight: bold;
-            color: #ff4d8d;
-            font-size: 1.35rem;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            color: #f4ad4e;
+            font-size: 1.3rem;
         }
 
         .btn-cta-menu {
-            background: linear-gradient(135deg, #ff4d8d, #e11d48);
-            color: white;
-            padding: 9px 20px;
-            border-radius: 20px;
+            background: #f4ad4e;
+            color: #141519;
+            padding: 8px 16px;
+            border-radius: 8px;
             font-weight: bold;
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(255, 77, 141, 0.3);
-            transition: all 0.2s;
+            font-size: 14px;
         }
 
-        .btn-cta-menu:hover {
-            transform: scale(1.03);
-            box-shadow: 0 6px 20px rgba(255, 77, 141, 0.45);
-        }
-
-        /* HERO / APRESENTAÇÃO PRINCIPAL */
+        /* HERO / APRESENTAÇÃO */
         .hero {
-            padding: 90px 20px 60px;
+            padding: 60px 20px;
             text-align: center;
-            max-width: 850px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
-        .tag-romantica {
-            display: inline-block;
-            background: rgba(255, 77, 141, 0.12);
-            border: 1px solid rgba(255, 77, 141, 0.3);
-            color: #ff75a0;
-            padding: 6px 18px;
-            border-radius: 30px;
-            font-size: 0.88rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
         .hero h1 {
-            font-size: clamp(2.3rem, 5vw, 4rem);
+            font-size: clamp(2rem, 5vw, 3.2rem);
             color: #ffffff;
-            margin-bottom: 22px;
+            margin-bottom: 20px;
             line-height: 1.2;
-            font-weight: 800;
         }
 
         .hero h1 span {
-            background: linear-gradient(135deg, #ff75a0, #ff2e63);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #f4ad4e;
         }
 
         .hero p {
-            font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+            font-size: 1.1rem;
             color: #cbd5e1;
-            margin-bottom: 35px;
-            font-weight: 300;
+            margin-bottom: 30px;
         }
 
         .btn-principal {
             display: inline-block;
-            background: linear-gradient(135deg, #ff4d8d 0%, #ff2e63 100%);
-            color: #ffffff;
+            background: #f4ad4e;
+            color: #141519;
             font-weight: bold;
-            padding: 18px 38px;
-            border-radius: 30px;
-            font-size: 1.15rem;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.1rem;
             text-decoration: none;
-            box-shadow: 0 12px 30px rgba(255, 46, 99, 0.35);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(244, 173, 78, 0.3);
         }
 
-        .btn-principal:hover {
-            transform: translateY(-3px);
-            box-shadow:
+        /* CARD DE DEMONSTRAÇÃO DO PAINEL */
+        .preview-container {
+            max-width: 800px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+
+        .preview-box {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .preview-box h2 {
+            color: #f4ad4e;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .preview-box p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        /* RECURSOS */
+        .recursos {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 20px 60px;
+        }
+
+        .recursos h2 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+
+        .grid-recursos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card-recurso {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card-recurso h3 {
+            color: #f4ad4e;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .card-recurso p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid #1e293b;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- MENU -->
+    <nav class="menu">
+        <div class="menu-logo">DuoTrip ❤️</div>
+        <a href="https://pay.kiwify.com.br/SEU-LINK" class="btn-cta-menu">Comprar Agora</a>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <h1>Transforme as viagens do seu casal num <span>diário inesquecível</span> com o DuoTrip</h1>
+        <p>Um site exclusivo e personalizado para vocês registarem quilómetros, rotas, garagens e memórias na estrada sobre duas rodas.</p>
+        <a href="https://pay.kiwify.com.br/SEU-LINK" class="btn-principal">Quero o Meu DuoTrip 🚀</a>
+    </header>
+
+    <!-- DEMONSTRAÇÃO -->
+    <div class="preview-container">
+        <div class="preview-box">
+            <h2>🏍️ O Vosso Espaço Exclusivo na Nuvem</h2>
+            <p>Painel 100% personalizado com a vossa história, estatísticas de rodagem, fotos de viagens e garagem compartilhada.</p>
+        </div>
+    </div>
+
+    <!-- RECURSOS -->
+    <section class="recursos">
+        <h2>Tudo o que o vosso relacionamento precisa na estrada</h2>
+        <div class="grid-recursos">
+            <div class="card-recurso">
+                <h3>📊 Estatísticas em Tempo Real</h3>
+                <p>Contador automático de dias juntos, viagens realizadas, quilometragem individual por moto e progresso de metas de rodagem.</p>
+            </div>
+            <div class="card-recurso">
+                <h3>🏍️ Garagem Compartilhada</h3>
+                <p>Apresente as vossas motos ou veículos com os nomes dos proprietários e o histórico de KM acumulado.</p>
+            </div>
+            <div class="card-recurso">
+                <h3>🗺️ Álbum de Aventuras</h3>
+                <p>Guarde fotos de capa, relatos detalhados de cada destino e crie uma linha do tempo fantástica.</p>
+            </div>
+            <div class="card-recurso">
+                <h3>☁️ Acesso na Nuvem</h3>
+                <p>Aceda de qualquer telemóvel, tablet ou computador com painel administrativo protegido por e-mail e senha.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHAMADA FINAL -->
+    <div style="text-align: center; padding: 20px 20px 60px;">
+        <h2 style="font-size: 1.8rem; margin-bottom: 20px;">Prontos para eternizar as vossas viagens?</h2>
+        <a href="https://pay.kiwify.com.br/SEU-LINK" class="btn-principal">Garantir o Meu Acesso Agora</a>
+    </div>
+
+    <!-- RODAPÉ -->
+    <footer>
+        <p>&copy; 2026 DuoTrip. Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+
+</html>
