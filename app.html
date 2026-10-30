@@ -359,15 +359,15 @@
             isSignUp = !isSignUp;
             if (isSignUp) {
                 authTitle.innerText = "Criar Conta no DuoTrip 💖";
-                authSubtitle.innerText = "Registem o vosso casal para começar a usar";
-                btnSubmit.innerText = "Criar Conta e Aceder ✨";
+                authSubtitle.innerText = "Registem o casal para começar a usar";
+                btnSubmit.innerText = "Criar Conta e Acessar ✨";
                 toggleText.innerText = "Já têm uma conta?";
                 toggleBtn.innerText = " Fazer Login";
             } else {
                 authTitle.innerText = "Entrar no DuoTrip ❤️";
-                authSubtitle.innerText = "Acedam ao vosso diário exclusivo de viagens";
+                authSubtitle.innerText = "Acesse seu diário exclusivo de viagens de casal";
                 btnSubmit.innerText = "Entrar no App 🚀";
-                toggleText.innerText = "Ainda não criaram a vossa conta?";
+                toggleText.innerText = "Ainda não criaram a conta?";
                 toggleBtn.innerText = " Criar Conta";
             }
         });
@@ -379,7 +379,7 @@
             const password = document.getElementById('password').value;
 
             btnSubmit.disabled = true;
-            btnSubmit.innerText = "A processar...";
+            btnSubmit.innerText = "Processando...";
 
             try {
                 if (isSignUp) {
