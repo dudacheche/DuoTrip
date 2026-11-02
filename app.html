@@ -342,83 +342,104 @@
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ELEMENTOS DO DOM
-        const authContainer = document.getElementById('auth-container');
-        const appContainer = document.getElementById('app-container');
-        const authForm = document.getElementById('auth-form');
-        const authTitle = document.getElementById('auth-title');
-        const authSubtitle = document.getElementById('auth-subtitle');
-        const btnSubmit = document.getElementById('btn-submit');
-        const toggleBtn = document.getElementById('toggle-btn');
-        const toggleText = document.getElementById('toggle-text');
-        const btnLogout = document.getElementById('btn-logout');
+    const authContainer = document.getElementById('auth-container');
+    const appContainer = document.getElementById('app-container');
+    const authForm = document.getElementById('auth-form');
+    const authTitle = document.getElementById('auth-title');
+    const authSubtitle = document.getElementById('auth-subtitle');
+    const btnSubmit = document.getElementById('btn-submit');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const toggleText = document.getElementById('toggle-text');
+    const btnLogout = document.getElementById('btn-logout');
 
-        let isSignUp = false;
+    let isSignUp = false;
 
-        // ALTERAR ENTRE ENTAR E CRIAR CONTA
-        toggleBtn.addEventListener('click', () => {
-            isSignUp = !isSignUp;
-            if (isSignUp) {
-                authTitle.innerText = "Criar Conta no DuoTrip 💖";
-                authSubtitle.innerText = "Registem o casal para começar a usar";
-                btnSubmit.innerText = "Criar Conta e Acessar ✨";
-                toggleText.innerText = "Já têm uma conta?";
-                toggleBtn.innerText = " Fazer Login";
-            } else {
-                authTitle.innerText = "Entrar no DuoTrip ❤️";
-                authSubtitle.innerText = "Acesse seu diário exclusivo de viagens de casal";
-                btnSubmit.innerText = "Entrar no App 🚀";
-                toggleText.innerText = "Ainda não criaram a conta?";
-                toggleBtn.innerText = " Criar Conta";
-            }
-        });
+    // ALTERAR ENTRE ENTRAR E CRIAR CONTA
+    toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        isSignUp = !isSignUp;
+        
+        if (isSignUp) {
+            authTitle.innerText = "Criar Conta no DuoTrip 💖";
+            authSubtitle.innerText = "Registem o vosso casal para começar a usar";
+            btnSubmit.innerText = "Criar Conta e Aceder ✨";
+            toggleText.innerText = "Já têm uma conta?";
+            toggleBtn.innerText = " Fazer Login";
+        } else {
+            authTitle.innerText = "Entrar no DuoTrip ❤️";
+            authSubtitle.innerText = "Acedam ao vosso diário exclusivo de viagens";
+            btnSubmit.innerText = "Entrar no App 🚀";
+            toggleText.innerText = "Ainda não criaram a vossa conta?";
+            toggleBtn.innerText = " Criar Conta";
+        }
+    });
 
-        // AUTENTICAÇÃO (LOGIN / REGISTO)
-        authForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+    // AUTENTICAÇÃO (LOGIN / REGISTO)
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
 
-            btnSubmit.disabled = true;
-            btnSubmit.innerText = "Processando...";
-
-            try {
-                if (isSignUp) {
-                    const { data, error } = await supabase.auth.signUp({ email, password });
-                    if (error) throw error;
-                    alert("Conta criada com sucesso!");
-                } else {
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                    if (error) throw error;
-                }
-                checkUser();
-            } catch (error) {
-                alert("Erro: " + error.message);
-            } finally {
-                btnSubmit.disabled = false;
-            }
-        });
-
-        // LOGOUT
-        btnLogout.addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            checkUser();
-        });
-
-        // VERIFICAR SESSÃO DO UTILIZADOR
-        async function checkUser() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                authContainer.style.display = 'none';
-                appContainer.style.display = 'block';
-            } else {
-                authContainer.style.display = 'flex';
-                appContainer.style.display = 'none';
-            }
+        if (!email || !password) {
+            alert("Por favor, preencha todos os campos.");
+            return;
         }
 
-        // EXECUTAR AO CARREGAR A PÁGINA
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "A processar...";
+
+        try {
+            if (isSignUp) {
+                // REGISTO DE NOVO UTILIZADOR
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error) throw error;
+
+                // Se o Supabase não exigir confirmação de e-mail, faz o login automático imediato:
+                if (data.session) {
+                    alert("Conta criada com sucesso! A entrar...");
+                    await checkUser();
+                } else {
+                    // Caso o Supabase exija confirmação por e-mail:
+                    alert("Conta criada! Tente fazer login ou verifique o seu e-mail se a confirmação estiver ativa.");
+                    isSignUp = false;
+                    toggleBtn.click(); // Volta à tela de login
+                }
+            } else {
+                // LOGIN DE UTILIZADOR EXISTENTE
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                await checkUser();
+            }
+        } catch (error) {
+            console.error("Erro na Autenticação:", error);
+            alert("Atenção: " + (error.message || "Ocorreu um erro ao tentar aceder."));
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = isSignUp ? "Criar Conta e Aceder ✨" : "Entrar no App 🚀";
+        }
+    });
+
+    // LOGOUT
+    btnLogout.addEventListener('click', async () => {
+        await supabase.auth.signOut();
         checkUser();
-    </script>
+    });
+
+    // VERIFICAR SESSÃO DO UTILIZADOR
+    async function checkUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            authContainer.style.display = 'none';
+            appContainer.style.display = 'block';
+        } else {
+            authContainer.style.display = 'flex';
+            appContainer.style.display = 'none';
+        }
+    }
+
+    // EXECUTAR AO CARREGAR A PÁGINA
+    checkUser();
+</script>
 
 </body>
 
