@@ -79,6 +79,23 @@
             outline: none;
         }
 
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fce7f3;
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: #e11d48;
+            cursor: pointer;
+        }
+
         .btn-auth, .btn-action {
             width: 100%;
             background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
@@ -262,8 +279,8 @@
             padding: 20px;
         }
 
-        /* ESTILO DOS CARDS DE ÁLBUM COM CAPA */
-        .photo-card {
+        /* ESTILO DOS CARDS DE VIAGEM COM FOTO */
+        .trip-card {
             background: rgba(42, 18, 37, 0.6);
             border: 1px solid rgba(244, 114, 182, 0.18);
             border-radius: 14px;
@@ -271,27 +288,28 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        .photo-card img {
+        .trip-card img {
             width: 100%;
-            height: 180px;
+            height: 160px;
             object-fit: cover;
             border-bottom: 1px solid rgba(244, 114, 182, 0.2);
         }
 
-        .photo-card .photo-info {
+        .trip-card .trip-info {
             padding: 15px;
         }
 
-        .photo-card h4 {
+        .trip-card h4 {
             color: #f472b6;
             margin-bottom: 5px;
             font-size: 1.1rem;
         }
 
-        .photo-card p {
+        .trip-card p {
             color: #fce7f3;
             font-size: 0.9rem;
             opacity: 0.85;
+            margin-bottom: 4px;
         }
 
         /* MODAIS DE REGISTRO */
@@ -312,6 +330,8 @@
             border-radius: 16px;
             width: 100%;
             max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .modal-content h3 { color: #f472b6; margin-bottom: 15px; }
         .btn-close { background: transparent; border: none; color: #fda4af; float: right; cursor: pointer; font-size: 1rem; }
@@ -388,11 +408,11 @@
             </div>
             <div class="stat-card">
                 <div class="number" id="stat-km">0 km</div>
-                <div>Total Rodado</div>
+                <div>Total Rodado pelo Casal</div>
             </div>
         </div>
 
-        <!-- GARAGEM (COM QUILOMETRAGEM POR VEÍCULO) -->
+        <!-- GARAGEM -->
         <div class="section-title">
             <span>🚗 🏍️ Nossa Garagem</span>
             <button class="btn-add" onclick="openModal('vehicle-modal')">+ Adicionar Veículo</button>
@@ -401,16 +421,7 @@
             <p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>
         </div>
 
-        <!-- ÁLBUM DE FOTOS COM CAPA -->
-        <div class="section-title">
-            <span>📸 Álbum de Memórias</span>
-            <button class="btn-add" onclick="openModal('photo-modal')">+ Adicionar Foto</button>
-        </div>
-        <div class="content-grid" id="photos-list">
-            <p style="color: #fce7f3; opacity: 0.7;">Nenhuma foto adicionada ao álbum ainda.</p>
-        </div>
-
-        <!-- VIAGENS -->
+        <!-- VIAGENS (COM SELEÇÃO DE VEÍCULO, 2 VEÍCULOS E FOTO) -->
         <div class="section-title">
             <span>🗺️ Nossas Viagens</span>
             <button class="btn-add" onclick="openModal('trip-modal')">+ Registrar Viagem</button>
@@ -428,7 +439,7 @@
             <form id="vehicle-form">
                 <div class="form-group">
                     <label>Nome / Apelido do Veículo</label>
-                    <input type="text" id="vehicle-name" placeholder="Ex: Moto da Estrada" required>
+                    <input type="text" id="vehicle-name" placeholder="Ex: Fan 150 / Titan 150" required>
                 </div>
                 <div class="form-group">
                     <label>Tipo</label>
@@ -439,33 +450,10 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Quilometragem Atual (km)</label>
+                    <label>Quilometragem Inicial (km)</label>
                     <input type="number" id="vehicle-km" placeholder="Ex: 15400" required>
                 </div>
                 <button type="submit" class="btn-action">Salvar Veículo</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL ADICIONAR FOTO / CAPA -->
-    <div id="photo-modal" class="modal">
-        <div class="modal-content">
-            <button class="btn-close" onclick="closeModal('photo-modal')">✕ Fechar</button>
-            <h3>Adicionar Memória 📸</h3>
-            <form id="photo-form">
-                <div class="form-group">
-                    <label>Título do Momento / Destino</label>
-                    <input type="text" id="photo-title" placeholder="Ex: Pôr do sol na serra" required>
-                </div>
-                <div class="form-group">
-                    <label>Link da Imagem (URL da Foto)</label>
-                    <input type="url" id="photo-url" placeholder="https://exemplo.com/sua-foto.jpg" required>
-                </div>
-                <div class="form-group">
-                    <label>Legenda / História</label>
-                    <textarea id="photo-desc" rows="3" placeholder="O dia em que quase perdemos a hora mas valeu a pena..." required></textarea>
-                </div>
-                <button type="submit" class="btn-action">Salvar no Álbum</button>
             </form>
         </div>
     </div>
@@ -485,8 +473,22 @@
                     <input type="text" id="trip-destination" placeholder="Ex: Caraguatatuba, SP" required>
                 </div>
                 <div class="form-group">
-                    <label>Distância Percorrida (km)</label>
+                    <label>Distância da Viagem (km)</label>
                     <input type="number" id="trip-km" placeholder="180" required>
+                </div>
+                <div class="form-group">
+                    <label>Veículo Principal Utilizado</label>
+                    <select id="trip-vehicle" required>
+                        <option value="">Carregando veículos...</option>
+                    </select>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="trip-two-vehicles">
+                    <label for="trip-two-vehicles" style="margin-bottom: 0; cursor: pointer;">Viajamos em 2 veículos separados (ex: 2 motos)?</label>
+                </div>
+                <div class="form-group">
+                    <label>Link da Foto da Viagem (Capa)</label>
+                    <input type="url" id="trip-photo" placeholder="https://exemplo.com/foto-viagem.jpg">
                 </div>
                 <button type="submit" class="btn-action">Salvar Viagem</button>
             </form>
@@ -591,163 +593,4 @@
         btnLogout.addEventListener('click', async () => {
             if (supabaseClient) {
                 await supabaseClient.auth.signOut();
-                checkUser();
-            }
-        });
-
-        async function checkUser() {
-            if (!supabaseClient) return;
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (user) {
-                authContainer.style.display = 'none';
-                appContainer.style.display = 'block';
-                loadUserData(user.id);
-                updateCounter();
-            } else {
-                authContainer.style.display = 'flex';
-                appContainer.style.display = 'none';
-            }
-        }
-
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        // SALVAR VEÍCULO COM KM
-        document.getElementById('vehicle-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return;
-
-            const vehicle_name = document.getElementById('vehicle-name').value;
-            const vehicle_type = document.getElementById('vehicle-type').value;
-            const vehicle_km = parseInt(document.getElementById('vehicle-km').value) || 0;
-
-            const { error } = await supabaseClient.from('garage').insert([{
-                user_id: user.id,
-                vehicle_name,
-                vehicle_type,
-                vehicle_km
-            }]);
-
-            if (error) {
-                alert("Erro ao salvar veículo (Certifique-se de adicionar a coluna vehicle_km na tabela garage do Supabase): " + error.message);
-            } else {
-                closeModal('vehicle-modal');
-                document.getElementById('vehicle-form').reset();
-                loadUserData(user.id);
-            }
-        });
-
-        // SALVAR FOTO NO ÁLBUM
-        document.getElementById('photo-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return;
-
-            const title = document.getElementById('photo-title').value;
-            const image_url = document.getElementById('photo-url').value;
-            const description = document.getElementById('photo-desc').value;
-
-            const { error } = await supabaseClient.from('photos').insert([{
-                user_id: user.id,
-                title,
-                image_url,
-                description
-            }]);
-
-            if (error) {
-                alert("Erro ao salvar foto (Certifique-se de criar a tabela 'photos' no Supabase): " + error.message);
-            } else {
-                closeModal('photo-modal');
-                document.getElementById('photo-form').reset();
-                loadUserData(user.id);
-            }
-        });
-
-        // SALVAR VIAGEM
-        document.getElementById('trip-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return;
-
-            const title = document.getElementById('trip-title').value;
-            const destination = document.getElementById('trip-destination').value;
-            const distance_km = parseInt(document.getElementById('trip-km').value) || 0;
-
-            const { error } = await supabaseClient.from('trips').insert([{
-                user_id: user.id,
-                title,
-                destination,
-                distance_km
-            }]);
-
-            if (error) {
-                alert("Erro ao salvar viagem: " + error.message);
-            } else {
-                closeModal('trip-modal');
-                document.getElementById('trip-form').reset();
-                loadUserData(user.id);
-            }
-        });
-
-        // CARREGAR TUDO EM TEMPO REAL
-        async function loadUserData(userId) {
-            // Garagem e KM individual
-            const { data: garageData } = await supabaseClient.from('garage').select('*').eq('user_id', userId);
-            const garageList = document.getElementById('garage-list');
-            garageList.innerHTML = '';
-
-            if (garageData && garageData.length > 0) {
-                garageData.forEach(v => {
-                    garageList.innerHTML += `<div class="item-card"><h3>${v.vehicle_name}</h3><p>Tipo: ${v.vehicle_type}</p><p style="color: #f472b6; font-weight: bold; margin-top: 5px;">📍 KM Atual: ${v.vehicle_km || 0} km</p></div>`;
-                });
-            } else {
-                garageList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>`;
-            }
-
-            // Fotos do Álbum
-            const { data: photosData } = await supabaseClient.from('photos').select('*').eq('user_id', userId);
-            const photosList = document.getElementById('photos-list');
-            photosList.innerHTML = '';
-
-            if (photosData && photosData.length > 0) {
-                photosData.forEach(p => {
-                    photosList.innerHTML += `
-                        <div class="photo-card">
-                            <img src="${p.image_url}" alt="${p.title}">
-                            <div class="photo-info">
-                                <h4>${p.title}</h4>
-                                <p>${p.description}</p>
-                            </div>
-                        </div>`;
-                });
-            } else {
-                photosList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhuma foto adicionada ao álbum ainda.</p>`;
-            }
-
-            // Viagens e Estatísticas
-            const { data: tripsData } = await supabaseClient.from('trips').select('*').eq('user_id', userId);
-            const tripsList = document.getElementById('trips-list');
-            tripsList.innerHTML = '';
-
-            let totalKm = 0;
-            let totalTrips = tripsData ? tripsData.length : 0;
-
-            if (tripsData && tripsData.length > 0) {
-                tripsData.forEach(t => {
-                    totalKm += t.distance_km || 0;
-                    tripsList.innerHTML += `<div class="item-card"><h3>${t.title}</h3><p>Destino: ${t.destination} (${t.distance_km} km)</p></div>`;
-                });
-            } else {
-                tripsList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem cadastrada ainda.</p>`;
-            }
-
-            document.getElementById('stat-trips').innerText = totalTrips;
-            document.getElementById('stat-km').innerText = totalKm + " km";
-        }
-
-        checkUser();
-    </script>
-</body>
-
-</html>
+                checkUse
