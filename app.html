@@ -68,7 +68,7 @@
             margin-bottom: 6px;
         }
 
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px 16px;
             border-radius: 10px;
@@ -79,7 +79,7 @@
             outline: none;
         }
 
-        .btn-auth {
+        .btn-auth, .btn-action {
             width: 100%;
             background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
             color: #ffffff;
@@ -182,6 +182,7 @@
             padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
+            font-weight: bold;
         }
 
         .content-grid {
@@ -197,6 +198,28 @@
             border-radius: 14px;
             padding: 20px;
         }
+
+        /* MODAIS DE REGISTRO */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 100;
+        }
+        .modal-content {
+            background: #2a1225;
+            border: 1px solid rgba(244, 114, 182, 0.4);
+            padding: 25px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .modal-content h3 { color: #f472b6; margin-bottom: 15px; }
+        .btn-close { background: transparent; border: none; color: #fda4af; float: right; cursor: pointer; font-size: 1rem; }
     </style>
 </head>
 
@@ -222,7 +245,7 @@
             </form>
 
             <div class="toggle-auth">
-                <span id="toggle-text">Ainda não criaram a vossa conta?</span>
+                <span id="toggle-text">Ainda não criaram conta?</span>
                 <button type="button" id="toggle-btn">Criar Conta</button>
             </div>
         </div>
@@ -242,10 +265,6 @@
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="number" id="stat-days">0</div>
-                <div>Dias Juntos</div>
-            </div>
-            <div class="stat-card">
                 <div class="number" id="stat-trips">0</div>
                 <div>Viagens Realizadas</div>
             </div>
@@ -255,43 +274,83 @@
             </div>
         </div>
 
+        <!-- GARAGEM -->
         <div class="section-title">
             <span>🚗 🏍️ Nossa Garagem</span>
-            <button class="btn-add" onclick="alert('Registar novo veículo!')">+ Adicionar Veículo</button>
+            <button class="btn-add" onclick="openModal('vehicle-modal')">+ Adicionar Veículo</button>
         </div>
-        <div class="content-grid">
-            <div class="item-card">
-                <h3>Seu Veículo Principal</h3>
-                <p>Adicionem as vossas motos, carros ou motorhomes para organizar a quilometragem.</p>
-            </div>
+        <div class="content-grid" id="garage-list">
+            <p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo registado ainda.</p>
         </div>
 
+        <!-- VIAGENS -->
         <div class="section-title">
             <span>🗺️ Nossas Viagens</span>
-            <button class="btn-add" onclick="alert('Registar nova viagem!')">+ Registar Viagem</button>
+            <button class="btn-add" onclick="openModal('trip-modal')">+ Registar Viagem</button>
         </div>
-        <div class="content-grid">
-            <div class="item-card">
-                <h3>Primeira Viagem</h3>
-                <p>Registem aqui o primeiro destino, fotos e detalhes do percurso do casal.</p>
-            </div>
+        <div class="content-grid" id="trips-list">
+            <p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem registada ainda.</p>
+        </div>
+    </div>
+
+    <!-- MODAL ADICIONAR VEÍCULO -->
+    <div id="vehicle-modal" class="modal">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeModal('vehicle-modal')">✕ Fechar</button>
+            <h3>Adicionar Veículo 🚗</h3>
+            <form id="vehicle-form">
+                <div class="form-group">
+                    <label>Nome / Apelido do Veículo</label>
+                    <input type="text" id="vehicle-name" placeholder="Ex: Moto da Estrada / Carro Família" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="vehicle-type">
+                        <option value="Moto">Moto</option>
+                        <option value="Carro">Carro</option>
+                        <option value="Motorhome">Motorhome</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-action">Guardar Veículo</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ADICIONAR VIAGEM -->
+    <div id="trip-modal" class="modal">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeModal('trip-modal')">✕ Fechar</button>
+            <h3>Registar Viagem 🗺️</h3>
+            <form id="trip-form">
+                <div class="form-group">
+                    <label>Título da Aventura</label>
+                    <input type="text" id="trip-title" placeholder="Ex: Viagem a Caraguatatuba" required>
+                </div>
+                <div class="form-group">
+                    <label>Destino</label>
+                    <input type="text" id="trip-destination" placeholder="Ex: Caraguatatuba, SP" required>
+                </div>
+                <div class="form-group">
+                    <label>Distância Percorrida (km)</label>
+                    <input type="number" id="trip-km" placeholder="180" required>
+                </div>
+                <button type="submit" class="btn-action">Guardar Viagem</button>
+            </form>
         </div>
     </div>
 
     <!-- SCRIPT DE LÓGICA -->
     <script>
-        // ATENÇÃO: Substitui pelas tuas chaves exatas do Supabase (Project Settings > API)
         const SUPABASE_URL = 'https://rbosjykmfuazdkgkcggs.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU';
 
         let supabaseClient = null;
 
-        // Inicialização segura do Supabase
         try {
             if (window.supabase) {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } else {
-                alert("Erro ao carregar o SDK do Supabase. Verifique a sua ligação à internet.");
+                alert("Erro ao carregar o SDK do Supabase. Verifique a sua ligação.");
             }
         } catch (e) {
             console.error("Erro na inicialização do Supabase:", e);
@@ -309,7 +368,6 @@
 
         let isSignUp = false;
 
-        // Alternar entre Login e Criar Conta
         toggleBtn.addEventListener('click', () => {
             isSignUp = !isSignUp;
             if (isSignUp) {
@@ -327,15 +385,8 @@
             }
         });
 
-        // Clique no botão de Submissão (Login ou Registo)
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            if (!supabaseClient) {
-                alert("Erro: O banco de dados do Supabase não foi configurado corretamente. Verifique as chaves URL e ANON_KEY.");
-                return;
-            }
-
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
@@ -346,14 +397,8 @@
                 if (isSignUp) {
                     const { data, error } = await supabaseClient.auth.signUp({ email, password });
                     if (error) throw error;
-
-                    if (data?.session) {
-                        alert("Conta criada com sucesso! A entrar...");
-                        checkUser();
-                    } else {
-                        alert("Conta criada! Pode agora fazer login.");
-                        toggleBtn.click();
-                    }
+                    alert("Conta criada com sucesso! A entrar...");
+                    checkUser();
                 } else {
                     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
@@ -363,33 +408,8 @@
                 alert("Erro: " + error.message);
             } finally {
                 btnSubmit.disabled = false;
-                btnSubmit.innerText = isSignUp ? "Criar Conta e Aceder ✨" : "Entrar no App 🚀";
+                btnSubmit.innerText = isSignUp ? "Criar Conta e Acessar ✨" : "Entrar no App 🚀";
             }
         });
 
-        // Logout
         btnLogout.addEventListener('click', async () => {
-            if (supabaseClient) {
-                await supabaseClient.auth.signOut();
-                checkUser();
-            }
-        });
-
-        // Verificar utilizador logado
-        async function checkUser() {
-            if (!supabaseClient) return;
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (user) {
-                authContainer.style.display = 'none';
-                appContainer.style.display = 'block';
-            } else {
-                authContainer.style.display = 'flex';
-                appContainer.style.display = 'none';
-            }
-        }
-
-        checkUser();
-    </script>
-</body>
-
-</html>
