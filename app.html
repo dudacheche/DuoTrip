@@ -145,6 +145,69 @@
             margin-bottom: 35px;
         }
 
+        /* CARD DE CONTADOR ESTILO CHECHEMATINHOS */
+        .counter-card {
+            background: rgba(42, 18, 37, 0.85);
+            border: 1px solid rgba(244, 114, 182, 0.35);
+            border-radius: 24px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 35px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .counter-card h3 {
+            color: #f472b6;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .counter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto 20px;
+        }
+
+        .counter-box {
+            background: rgba(24, 8, 20, 0.6);
+            border: 1px solid rgba(244, 114, 182, 0.2);
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .counter-box .number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .counter-box .label {
+            font-size: 0.8rem;
+            color: #fda4af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .date-picker-box {
+            font-size: 0.9rem;
+            color: #fce7f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-picker-box input {
+            background: rgba(24, 8, 20, 0.8);
+            border: 1px solid rgba(244, 114, 182, 0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            outline: none;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -259,9 +322,32 @@
         </header>
 
         <section class="welcome-section">
-            <h1>Bem-vindos, Casal! 👋</h1>
-            <p>Aqui estão o progresso e as memórias de vocês na estrada</p>
+            <h1>Nossa História na Estrada 💖</h1>
+            <p>Cada quilômetro percorrido juntos ao longo do nosso amor</p>
         </section>
+
+        <!-- CONTADOR DE TEMPO JUNTOS (ESTILO CHECHEMATINHOS) -->
+        <div class="counter-card">
+            <h3>⏳ Estamos juntos há:</h3>
+            <div class="counter-grid">
+                <div class="counter-box">
+                    <div class="number" id="days-count">0</div>
+                    <div class="label">Dias</div>
+                </div>
+                <div class="counter-box">
+                    <div class="number" id="months-count">0</div>
+                    <div class="label">Meses</div>
+                </div>
+                <div class="counter-box">
+                    <div class="number" id="years-count">0</div>
+                    <div class="label">Anos</div>
+                </div>
+            </div>
+            <div class="date-picker-box">
+                <label for="start-date">Início do Namoro / Viagens:</label>
+                <input type="date" id="start-date" value="2025-01-01" onchange="updateCounter()">
+            </div>
+        </div>
 
         <div class="stats-grid">
             <div class="stat-card">
@@ -368,6 +454,29 @@
 
         let isSignUp = false;
 
+        // CONTADOR DE DIAS ESTILO CHECHEMATINHOS
+        function updateCounter() {
+            const startDateVal = document.getElementById('start-date').value;
+            if (!startDateVal) return;
+
+            const start = new Date(startDateVal);
+            const now = new Date();
+
+            const diffTime = Math.abs(now - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            let diffYears = now.getFullYear() - start.getFullYear();
+            let diffMonths = now.getMonth() - start.getMonth() + (diffYears * 12);
+            if (now.getDate() < start.getDate()) diffMonths--;
+            
+            diffYears = Math.floor(diffMonths / 12);
+            const remainingMonths = diffMonths % 12;
+
+            document.getElementById('days-count').innerText = diffDays;
+            document.getElementById('months-count').innerText = diffMonths;
+            document.getElementById('years-count').innerText = diffYears;
+        }
+
         toggleBtn.addEventListener('click', () => {
             isSignUp = !isSignUp;
             if (isSignUp) {
@@ -426,6 +535,7 @@
                 authContainer.style.display = 'none';
                 appContainer.style.display = 'block';
                 loadUserData(user.id);
+                updateCounter();
             } else {
                 authContainer.style.display = 'flex';
                 appContainer.style.display = 'none';
@@ -472,58 +582,4 @@
 
             const { error } = await supabaseClient.from('trips').insert([{
                 user_id: user.id,
-                title,
-                destination,
-                distance_km
-            }]);
-
-            if (error) {
-                alert("Erro ao salvar viagem: " + error.message);
-            } else {
-                closeModal('trip-modal');
-                document.getElementById('trip-form').reset();
-                loadUserData(user.id);
-            }
-        });
-
-        // CARREGAR DADOS EM TEMPO REAL
-        async function loadUserData(userId) {
-            // Garagem
-            const { data: garageData } = await supabaseClient.from('garage').select('*').eq('user_id', userId);
-            const garageList = document.getElementById('garage-list');
-            garageList.innerHTML = '';
-
-            if (garageData && garageData.length > 0) {
-                garageData.forEach(v => {
-                    garageList.innerHTML += `<div class="item-card"><h3>${v.vehicle_name}</h3><p>Tipo: ${v.vehicle_type}</p></div>`;
-                });
-            } else {
-                garageList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>`;
-            }
-
-            // Viagens
-            const { data: tripsData } = await supabaseClient.from('trips').select('*').eq('user_id', userId);
-            const tripsList = document.getElementById('trips-list');
-            tripsList.innerHTML = '';
-
-            let totalKm = 0;
-            let totalTrips = tripsData ? tripsData.length : 0;
-
-            if (tripsData && tripsData.length > 0) {
-                tripsData.forEach(t => {
-                    totalKm += t.distance_km || 0;
-                    tripsList.innerHTML += `<div class="item-card"><h3>${t.title}</h3><p>Destino: ${t.destination} (${t.distance_km} km)</p></div>`;
-                });
-            } else {
-                tripsList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem cadastrada ainda.</p>`;
-            }
-
-            document.getElementById('stat-trips').innerText = totalTrips;
-            document.getElementById('stat-km').innerText = totalKm + " km";
-        }
-
-        checkUser();
-    </script>
-</body>
-
-</html>
+             
