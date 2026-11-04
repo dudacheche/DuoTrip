@@ -68,7 +68,7 @@
             margin-bottom: 6px;
         }
 
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px 16px;
             border-radius: 10px;
@@ -262,6 +262,38 @@
             padding: 20px;
         }
 
+        /* ESTILO DOS CARDS DE ÁLBUM COM CAPA */
+        .photo-card {
+            background: rgba(42, 18, 37, 0.6);
+            border: 1px solid rgba(244, 114, 182, 0.18);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 1px solid rgba(244, 114, 182, 0.2);
+        }
+
+        .photo-card .photo-info {
+            padding: 15px;
+        }
+
+        .photo-card h4 {
+            color: #f472b6;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .photo-card p {
+            color: #fce7f3;
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+
         /* MODAIS DE REGISTRO */
         .modal {
             display: none;
@@ -326,7 +358,7 @@
             <p>Cada quilômetro percorrido juntos ao longo do nosso amor</p>
         </section>
 
-        <!-- CONTADOR DE TEMPO JUNTOS (ESTILO CHECHEMATINHOS) -->
+        <!-- CONTADOR DE TEMPO JUNTOS -->
         <div class="counter-card">
             <h3>⏳ Estamos juntos há:</h3>
             <div class="counter-grid">
@@ -360,13 +392,22 @@
             </div>
         </div>
 
-        <!-- GARAGEM -->
+        <!-- GARAGEM (COM QUILOMETRAGEM POR VEÍCULO) -->
         <div class="section-title">
             <span>🚗 🏍️ Nossa Garagem</span>
             <button class="btn-add" onclick="openModal('vehicle-modal')">+ Adicionar Veículo</button>
         </div>
         <div class="content-grid" id="garage-list">
             <p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>
+        </div>
+
+        <!-- ÁLBUM DE FOTOS COM CAPA -->
+        <div class="section-title">
+            <span>📸 Álbum de Memórias</span>
+            <button class="btn-add" onclick="openModal('photo-modal')">+ Adicionar Foto</button>
+        </div>
+        <div class="content-grid" id="photos-list">
+            <p style="color: #fce7f3; opacity: 0.7;">Nenhuma foto adicionada ao álbum ainda.</p>
         </div>
 
         <!-- VIAGENS -->
@@ -387,7 +428,7 @@
             <form id="vehicle-form">
                 <div class="form-group">
                     <label>Nome / Apelido do Veículo</label>
-                    <input type="text" id="vehicle-name" placeholder="Ex: Moto da Estrada / Carro Família" required>
+                    <input type="text" id="vehicle-name" placeholder="Ex: Moto da Estrada" required>
                 </div>
                 <div class="form-group">
                     <label>Tipo</label>
@@ -397,7 +438,34 @@
                         <option value="Motorhome">Motorhome</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Quilometragem Atual (km)</label>
+                    <input type="number" id="vehicle-km" placeholder="Ex: 15400" required>
+                </div>
                 <button type="submit" class="btn-action">Salvar Veículo</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ADICIONAR FOTO / CAPA -->
+    <div id="photo-modal" class="modal">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeModal('photo-modal')">✕ Fechar</button>
+            <h3>Adicionar Memória 📸</h3>
+            <form id="photo-form">
+                <div class="form-group">
+                    <label>Título do Momento / Destino</label>
+                    <input type="text" id="photo-title" placeholder="Ex: Pôr do sol na serra" required>
+                </div>
+                <div class="form-group">
+                    <label>Link da Imagem (URL da Foto)</label>
+                    <input type="url" id="photo-url" placeholder="https://exemplo.com/sua-foto.jpg" required>
+                </div>
+                <div class="form-group">
+                    <label>Legenda / História</label>
+                    <textarea id="photo-desc" rows="3" placeholder="O dia em que quase perdemos a hora mas valeu a pena..." required></textarea>
+                </div>
+                <button type="submit" class="btn-action">Salvar no Álbum</button>
             </form>
         </div>
     </div>
@@ -427,185 +495,177 @@
 
     <!-- SCRIPT DE LÓGICA -->
     <script>
-    const SUPABASE_URL = 'https://rbosjykmfuazdkgkcggs.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU';
+        const SUPABASE_URL = 'https://rbosjykmfuazdkgkcggs.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU';
 
-    let supabaseClient = null;
-
-    try {
-        if (window.supabase) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } else {
-            alert("Erro ao carregar o SDK do Supabase. Verifique sua conexão.");
-        }
-    } catch (e) {
-        console.error("Erro na inicialização do Supabase:", e);
-    }
-
-    const authContainer = document.getElementById('auth-container');
-    const appContainer = document.getElementById('app-container');
-    const authForm = document.getElementById('auth-form');
-    const authTitle = document.getElementById('auth-title');
-    const authSubtitle = document.getElementById('auth-subtitle');
-    const btnSubmit = document.getElementById('btn-submit');
-    const toggleBtn = document.getElementById('toggle-btn');
-    const toggleText = document.getElementById('toggle-text');
-    const btnLogout = document.getElementById('btn-logout');
-
-    let isSignUp = false;
-
-    // CONTADOR DE DIAS ESTILO CHECHEMATINHOS
-    function updateCounter() {
-        const startDateVal = document.getElementById('start-date');
-        if (!startDateVal) return;
-        
-        const start = new Date(startDateVal.value);
-        const now = new Date();
-
-        const diffTime = Math.abs(now - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        let diffYears = now.getFullYear() - start.getFullYear();
-        let diffMonths = now.getMonth() - start.getMonth() + (diffYears * 12);
-        if (now.getDate() < start.getDate()) diffMonths--;
-        
-        diffYears = Math.floor(diffMonths / 12);
-
-        const daysElem = document.getElementById('days-count');
-        const monthsElem = document.getElementById('months-count');
-        const yearsElem = document.getElementById('years-count');
-
-        if (daysElem) daysElem.innerText = diffDays;
-        if (monthsElem) monthsElem.innerText = diffMonths;
-        if (yearsElem) yearsElem.innerText = diffYears;
-    }
-
-    // ALTERNAR ENTRE LOGIN E CRIAR CONTA (GARANTIDO)
-    toggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        isSignUp = !isSignUp;
-        
-        if (isSignUp) {
-            authTitle.innerText = "Criar Conta no DuoTrip 💖";
-            authSubtitle.innerText = "Faça o cadastro do casal para começar a usar";
-            btnSubmit.innerText = "Criar Conta e Acessar ✨";
-            toggleText.innerText = "Já têm uma conta?";
-            toggleBtn.innerText = "Fazer Login";
-        } else {
-            authTitle.innerText = "Entrar no DuoTrip ❤️";
-            authSubtitle.innerText = "Acessem o diário exclusivo de viagens do casal";
-            btnSubmit.innerText = "Entrar no App 🚀";
-            toggleText.innerText = "Ainda não criaram conta?";
-            toggleBtn.innerText = "Criar Conta";
-        }
-    });
-
-    // SUBMISSÃO DO FORMULÁRIO DE AUTENTICAÇÃO
-    authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        if (!supabaseClient) {
-            alert("Erro: Supabase não inicializado.");
-            return;
-        }
-
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-
-        if (!email || !password) {
-            alert("Por favor, preencha o e-mail e a senha.");
-            return;
-        }
-
-        btnSubmit.disabled = true;
-        btnSubmit.innerText = "Processando...";
+        let supabaseClient = null;
 
         try {
-            if (isSignUp) {
-                // Criar Nova Conta
-                const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) throw error;
-
-                alert("Conta criada com sucesso! Entrando no painel...");
-                checkUser();
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } else {
-                // Fazer Login
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) throw error;
+                alert("Erro ao carregar o SDK do Supabase. Verifique sua conexão.");
+            }
+        } catch (e) {
+            console.error("Erro na inicialização do Supabase:", e);
+        }
+
+        const authContainer = document.getElementById('auth-container');
+        const appContainer = document.getElementById('app-container');
+        const authForm = document.getElementById('auth-form');
+        const authTitle = document.getElementById('auth-title');
+        const authSubtitle = document.getElementById('auth-subtitle');
+        const btnSubmit = document.getElementById('btn-submit');
+        const toggleBtn = document.getElementById('toggle-btn');
+        const toggleText = document.getElementById('toggle-text');
+        const btnLogout = document.getElementById('btn-logout');
+
+        let isSignUp = false;
+
+        function updateCounter() {
+            const startDateVal = document.getElementById('start-date').value;
+            if (!startDateVal) return;
+
+            const start = new Date(startDateVal);
+            const now = new Date();
+
+            const diffTime = Math.abs(now - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            let diffYears = now.getFullYear() - start.getFullYear();
+            let diffMonths = now.getMonth() - start.getMonth() + (diffYears * 12);
+            if (now.getDate() < start.getDate()) diffMonths--;
+            
+            diffYears = Math.floor(diffMonths / 12);
+
+            document.getElementById('days-count').innerText = diffDays;
+            document.getElementById('months-count').innerText = diffMonths;
+            document.getElementById('years-count').innerText = diffYears;
+        }
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            isSignUp = !isSignUp;
+            if (isSignUp) {
+                authTitle.innerText = "Criar Conta no DuoTrip 💖";
+                authSubtitle.innerText = "Faça o cadastro do casal para começar a usar";
+                btnSubmit.innerText = "Criar Conta e Acessar ✨";
+                toggleText.innerText = "Já têm uma conta?";
+                toggleBtn.innerText = "Fazer Login";
+            } else {
+                authTitle.innerText = "Entrar no DuoTrip ❤️";
+                authSubtitle.innerText = "Acessem o diário exclusivo de viagens do casal";
+                btnSubmit.innerText = "Entrar no App 🚀";
+                toggleText.innerText = "Ainda não criaram conta?";
+                toggleBtn.innerText = "Criar Conta";
+            }
+        });
+
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "Processando...";
+
+            try {
+                if (isSignUp) {
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                    if (error) throw error;
+                    alert("Conta criada com sucesso! Entrando...");
+                    checkUser();
+                } else {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    checkUser();
+                }
+            } catch (error) {
+                alert("Erro: " + error.message);
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = isSignUp ? "Criar Conta e Acessar ✨" : "Entrar no App 🚀";
+            }
+        });
+
+        btnLogout.addEventListener('click', async () => {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
                 checkUser();
             }
-        } catch (error) {
-            console.error("Erro na autenticação:", error);
-            alert("Erro: " + error.message);
-        } finally {
-            btnSubmit.disabled = false;
-            btnSubmit.innerText = isSignUp ? "Criar Conta e Acessar ✨" : "Entrar no App 🚀";
+        });
+
+        async function checkUser() {
+            if (!supabaseClient) return;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+                loadUserData(user.id);
+                updateCounter();
+            } else {
+                authContainer.style.display = 'flex';
+                appContainer.style.display = 'none';
+            }
         }
-    });
 
-    btnLogout.addEventListener('click', async () => {
-        if (supabaseClient) {
-            await supabaseClient.auth.signOut();
-            checkUser();
-        }
-    });
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    async function checkUser() {
-        if (!supabaseClient) return;
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (user) {
-            authContainer.style.display = 'none';
-            appContainer.style.display = 'block';
-            loadUserData(user.id);
-            updateCounter();
-        } else {
-            authContainer.style.display = 'flex';
-            appContainer.style.display = 'none';
-        }
-    }
-
-    // FUNÇÕES DOS MODAIS
-    function openModal(id) { 
-        const modal = document.getElementById(id);
-        if (modal) modal.style.display = 'flex'; 
-    }
-    
-    function closeModal(id) { 
-        const modal = document.getElementById(id);
-        if (modal) modal.style.display = 'none'; 
-    }
-
-    // SALVAR VEÍCULO NO SUPABASE
-    const vehicleForm = document.getElementById('vehicle-form');
-    if (vehicleForm) {
-        vehicleForm.addEventListener('submit', async (e) => {
+        // SALVAR VEÍCULO COM KM
+        document.getElementById('vehicle-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return;
 
             const vehicle_name = document.getElementById('vehicle-name').value;
             const vehicle_type = document.getElementById('vehicle-type').value;
+            const vehicle_km = parseInt(document.getElementById('vehicle-km').value) || 0;
 
             const { error } = await supabaseClient.from('garage').insert([{
                 user_id: user.id,
                 vehicle_name,
-                vehicle_type
+                vehicle_type,
+                vehicle_km
             }]);
 
             if (error) {
-                alert("Erro ao salvar veículo: " + error.message);
+                alert("Erro ao salvar veículo (Certifique-se de adicionar a coluna vehicle_km na tabela garage do Supabase): " + error.message);
             } else {
                 closeModal('vehicle-modal');
-                vehicleForm.reset();
+                document.getElementById('vehicle-form').reset();
                 loadUserData(user.id);
             }
         });
-    }
 
-    // SALVAR VIAGEM NO SUPABASE
-    const tripForm = document.getElementById('trip-form');
-    if (tripForm) {
-        tripForm.addEventListener('submit', async (e) => {
+        // SALVAR FOTO NO ÁLBUM
+        document.getElementById('photo-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+
+            const title = document.getElementById('photo-title').value;
+            const image_url = document.getElementById('photo-url').value;
+            const description = document.getElementById('photo-desc').value;
+
+            const { error } = await supabaseClient.from('photos').insert([{
+                user_id: user.id,
+                title,
+                image_url,
+                description
+            }]);
+
+            if (error) {
+                alert("Erro ao salvar foto (Certifique-se de criar a tabela 'photos' no Supabase): " + error.message);
+            } else {
+                closeModal('photo-modal');
+                document.getElementById('photo-form').reset();
+                loadUserData(user.id);
+            }
+        });
+
+        // SALVAR VIAGEM
+        document.getElementById('trip-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return;
@@ -625,31 +685,51 @@
                 alert("Erro ao salvar viagem: " + error.message);
             } else {
                 closeModal('trip-modal');
-                tripForm.reset();
+                document.getElementById('trip-form').reset();
                 loadUserData(user.id);
             }
         });
-    }
 
-    // CARREGAR DADOS EM TEMPO REAL
-    async function loadUserData(userId) {
-        const { data: garageData } = await supabaseClient.from('garage').select('*').eq('user_id', userId);
-        const garageList = document.getElementById('garage-list');
-        if (garageList) {
+        // CARREGAR TUDO EM TEMPO REAL
+        async function loadUserData(userId) {
+            // Garagem e KM individual
+            const { data: garageData } = await supabaseClient.from('garage').select('*').eq('user_id', userId);
+            const garageList = document.getElementById('garage-list');
             garageList.innerHTML = '';
+
             if (garageData && garageData.length > 0) {
                 garageData.forEach(v => {
-                    garageList.innerHTML += `<div class="item-card"><h3>${v.vehicle_name}</h3><p>Tipo: ${v.vehicle_type}</p></div>`;
+                    garageList.innerHTML += `<div class="item-card"><h3>${v.vehicle_name}</h3><p>Tipo: ${v.vehicle_type}</p><p style="color: #f472b6; font-weight: bold; margin-top: 5px;">📍 KM Atual: ${v.vehicle_km || 0} km</p></div>`;
                 });
             } else {
                 garageList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>`;
             }
-        }
 
-        const { data: tripsData } = await supabaseClient.from('trips').select('*').eq('user_id', userId);
-        const tripsList = document.getElementById('trips-list');
-        if (tripsList) {
+            // Fotos do Álbum
+            const { data: photosData } = await supabaseClient.from('photos').select('*').eq('user_id', userId);
+            const photosList = document.getElementById('photos-list');
+            photosList.innerHTML = '';
+
+            if (photosData && photosData.length > 0) {
+                photosData.forEach(p => {
+                    photosList.innerHTML += `
+                        <div class="photo-card">
+                            <img src="${p.image_url}" alt="${p.title}">
+                            <div class="photo-info">
+                                <h4>${p.title}</h4>
+                                <p>${p.description}</p>
+                            </div>
+                        </div>`;
+                });
+            } else {
+                photosList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhuma foto adicionada ao álbum ainda.</p>`;
+            }
+
+            // Viagens e Estatísticas
+            const { data: tripsData } = await supabaseClient.from('trips').select('*').eq('user_id', userId);
+            const tripsList = document.getElementById('trips-list');
             tripsList.innerHTML = '';
+
             let totalKm = 0;
             let totalTrips = tripsData ? tripsData.length : 0;
 
@@ -662,12 +742,12 @@
                 tripsList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem cadastrada ainda.</p>`;
             }
 
-            const statTrips = document.getElementById('stat-trips');
-            const statKm = document.getElementById('stat-km');
-            if (statTrips) statTrips.innerText = totalTrips;
-            if (statKm) statKm.innerText = totalKm + " km";
+            document.getElementById('stat-trips').innerText = totalTrips;
+            document.getElementById('stat-km').innerText = totalKm + " km";
         }
-    }
 
-    checkUser();
-      </script>
+        checkUser();
+    </script>
+</body>
+
+</html>
