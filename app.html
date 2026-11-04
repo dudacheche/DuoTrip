@@ -162,7 +162,6 @@
             margin-bottom: 35px;
         }
 
-        /* CARD DE CONTADOR ESTILO CHECHEMATINHOS */
         .counter-card {
             background: rgba(42, 18, 37, 0.85);
             border: 1px solid rgba(244, 114, 182, 0.35);
@@ -272,47 +271,22 @@
             margin-bottom: 40px;
         }
 
-        .item-card {
-            background: rgba(42, 18, 37, 0.6);
-            border: 1px solid rgba(244, 114, 182, 0.18);
-            border-radius: 14px;
-            padding: 20px;
-        }
-
-        /* ESTILO DOS CARDS DE VIAGEM COM FOTO */
-        .trip-card {
+        .item-card, .trip-card {
             background: rgba(42, 18, 37, 0.6);
             border: 1px solid rgba(244, 114, 182, 0.18);
             border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            padding: 20px;
         }
 
         .trip-card img {
             width: 100%;
             height: 160px;
             object-fit: cover;
-            border-bottom: 1px solid rgba(244, 114, 182, 0.2);
+            border-radius: 10px;
+            margin-bottom: 12px;
         }
 
-        .trip-card .trip-info {
-            padding: 15px;
-        }
-
-        .trip-card h4 {
-            color: #f472b6;
-            margin-bottom: 5px;
-            font-size: 1.1rem;
-        }
-
-        .trip-card p {
-            color: #fce7f3;
-            font-size: 0.9rem;
-            opacity: 0.85;
-            margin-bottom: 4px;
-        }
-
-        /* MODAIS DE REGISTRO */
         .modal {
             display: none;
             position: fixed;
@@ -421,7 +395,7 @@
             <p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>
         </div>
 
-        <!-- VIAGENS (COM SELEÇÃO DE VEÍCULO, 2 VEÍCULOS E FOTO) -->
+        <!-- VIAGENS -->
         <div class="section-title">
             <span>🗺️ Nossas Viagens</span>
             <button class="btn-add" onclick="openModal('trip-modal')">+ Registrar Viagem</button>
@@ -484,11 +458,11 @@
                 </div>
                 <div class="checkbox-group">
                     <input type="checkbox" id="trip-two-vehicles">
-                    <label for="trip-two-vehicles" style="margin-bottom: 0; cursor: pointer;">Viajamos em 2 veículos separados (ex: 2 motos)?</label>
+                    <label for="trip-two-vehicles" style="margin-bottom: 0; cursor: pointer;">Viajamos em 2 veículos separados?</label>
                 </div>
                 <div class="form-group">
-                    <label>Link da Foto da Viagem (Capa)</label>
-                    <input type="url" id="trip-photo" placeholder="https://exemplo.com/foto-viagem.jpg">
+                    <label>Link da Foto da Viagem (Opcional)</label>
+                    <input type="url" id="trip-photo" placeholder="https://exemplo.com/foto.jpg">
                 </div>
                 <button type="submit" class="btn-action">Salvar Viagem</button>
             </form>
@@ -506,10 +480,10 @@
             if (window.supabase) {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } else {
-                alert("Erro ao carregar o SDK do Supabase. Verifique sua conexão.");
+                alert("Erro ao carregar o SDK do Supabase.");
             }
         } catch (e) {
-            console.error("Erro na inicialização do Supabase:", e);
+            console.error("Erro no Supabase:", e);
         }
 
         const authContainer = document.getElementById('auth-container');
@@ -540,57 +514,77 @@
             
             diffYears = Math.floor(diffMonths / 12);
 
-            document.getElementById('days-count').innerText = diffDays;
-            document.getElementById('months-count').innerText = diffMonths;
-            document.getElementById('years-count').innerText = diffYears;
+            const daysElem = document.getElementById('days-count');
+            const monthsElem = document.getElementById('months-count');
+            const yearsElem = document.getElementById('years-count');
+
+            if (daysElem) daysElem.innerText = diffDays;
+            if (monthsElem) monthsElem.innerText = diffMonths;
+            if (yearsElem) yearsElem.innerText = diffYears;
         }
 
-        toggleBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            isSignUp = !isSignUp;
-            if (isSignUp) {
-                authTitle.innerText = "Criar Conta no DuoTrip 💖";
-                authSubtitle.innerText = "Faça o cadastro do casal para começar a usar";
-                btnSubmit.innerText = "Criar Conta e Acessar ✨";
-                toggleText.innerText = "Já têm uma conta?";
-                toggleBtn.innerText = "Fazer Login";
-            } else {
-                authTitle.innerText = "Entrar no DuoTrip ❤️";
-                authSubtitle.innerText = "Acessem o diário exclusivo de viagens do casal";
-                btnSubmit.innerText = "Entrar no App 🚀";
-                toggleText.innerText = "Ainda não criaram conta?";
-                toggleBtn.innerText = "Criar Conta";
-            }
-        });
-
-        authForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            btnSubmit.disabled = true;
-            btnSubmit.innerText = "Processando...";
-
-            try {
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                isSignUp = !isSignUp;
                 if (isSignUp) {
-                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                    if (error) throw error;
-                    alert("Conta criada com sucesso! Entrando...");
-                    checkUser();
+                    authTitle.innerText = "Criar Conta no DuoTrip 💖";
+                    authSubtitle.innerText = "Faça o cadastro do casal para começar a usar";
+                    btnSubmit.innerText = "Criar Conta e Acessar ✨";
+                    toggleText.innerText = "Já têm uma conta?";
+                    toggleBtn.innerText = "Fazer Login";
                 } else {
-                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                    if (error) throw error;
+                    authTitle.innerText = "Entrar no DuoTrip ❤️";
+                    authSubtitle.innerText = "Acessem o diário exclusivo de viagens do casal";
+                    btnSubmit.innerText = "Entrar no App 🚀";
+                    toggleText.innerText = "Ainda não criaram conta?";
+                    toggleBtn.innerText = "Criar Conta";
+                }
+            });
+        }
+
+        if (authForm) {
+            authForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!supabaseClient) return alert("Erro: Supabase não conectado.");
+
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+
+                btnSubmit.disabled = true;
+                btnSubmit.innerText = "Processando...";
+
+                try {
+                    if (isSignUp) {
+                        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                        if (error) throw error;
+                        alert("Conta criada com sucesso! Entrando...");
+                        checkUser();
+                    } else {
+                        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                        if (error) throw error;
+                        checkUser();
+                    }
+                } catch (error) {
+                    alert("Erro: " + error.message);
+                } finally {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerText = isSignUp ? "Criar Conta e Acessar ✨" : "Entrar no App 🚀";
+                }
+            });
+        }
+
+        if (btnLogout) {
+            btnLogout.addEventListener('click', async () => {
+                if (supabaseClient) {
+                    await supabaseClient.auth.signOut();
                     checkUser();
                 }
-            } catch (error) {
-                alert("Erro: " + error.message);
-            } finally {
-                btnSubmit.disabled = false;
-                btnSubmit.innerText = isSignUp ? "Criar Conta e Acessar ✨" : "Entrar no App 🚀";
-            }
-        });
+            });
+        }
 
-        btnLogout.addEventListener('click', async () => {
-            if (supabaseClient) {
-                await supabaseClient.auth.signOut();
-                checkUse
+        async function checkUser() {
+            if (!supabaseClient) return;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                authContainer.style.
