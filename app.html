@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DuoTrip - O seu Painel ❤️</title>
+    <title>DuoTrip - O Vosso Painel ❤️</title>
 
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -24,7 +24,6 @@
             line-height: 1.6;
         }
 
-        /* TELA DE AUTENTICAÇÃO (LOGIN / REGISTO) */
         #auth-container {
             display: flex;
             justify-content: center;
@@ -80,10 +79,6 @@
             outline: none;
         }
 
-        .form-group input:focus {
-            border-color: #f472b6;
-        }
-
         .btn-auth {
             width: 100%;
             background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
@@ -96,11 +91,6 @@
             cursor: pointer;
             margin-top: 10px;
             box-shadow: 0 8px 20px rgba(225, 29, 72, 0.4);
-            transition: transform 0.2s ease;
-        }
-
-        .btn-auth:hover {
-            transform: translateY(-2px);
         }
 
         .toggle-auth {
@@ -109,13 +99,16 @@
             color: #fce7f3;
         }
 
-        .toggle-auth a {
+        .toggle-auth button {
+            background: none;
+            border: none;
             color: #f472b6;
             text-decoration: underline;
             cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
         }
 
-        /* PAINEL PRINCIPAL (DASHBOARD DO CASAL) */
         #app-container {
             display: none;
             max-width: 900px;
@@ -123,7 +116,6 @@
             padding: 20px 20px 60px;
         }
 
-        /* NAV DO APP */
         .app-header {
             display: flex;
             justify-content: space-between;
@@ -145,28 +137,14 @@
             color: #fce7f3;
             padding: 6px 16px;
             border-radius: 15px;
-            font-size: 0.85rem;
             cursor: pointer;
         }
 
-        /* BOAS-VINDAS */
         .welcome-section {
             text-align: center;
             margin-bottom: 35px;
         }
 
-        .welcome-section h1 {
-            font-size: 2rem;
-            color: #ffffff;
-            margin-bottom: 5px;
-        }
-
-        .welcome-section p {
-            color: #fce7f3;
-            opacity: 0.85;
-        }
-
-        /* ESTATÍSTICAS */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -182,24 +160,12 @@
             text-align: center;
         }
 
-        .stat-card .icon {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-        }
-
         .stat-card .number {
             font-size: 1.8rem;
             font-weight: bold;
             color: #f472b6;
         }
 
-        .stat-card .label {
-            font-size: 0.85rem;
-            color: #fce7f3;
-            opacity: 0.8;
-        }
-
-        /* SECCÕES (GARAGEM E VIAGENS) */
         .section-title {
             font-size: 1.4rem;
             color: #f472b6;
@@ -215,8 +181,6 @@
             border: none;
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
             cursor: pointer;
         }
 
@@ -233,18 +197,6 @@
             border-radius: 14px;
             padding: 20px;
         }
-
-        .item-card h3 {
-            color: #ffffff;
-            font-size: 1.1rem;
-            margin-bottom: 6px;
-        }
-
-        .item-card p {
-            color: #fce7f3;
-            font-size: 0.9rem;
-            opacity: 0.85;
-        }
     </style>
 </head>
 
@@ -254,15 +206,15 @@
     <div id="auth-container">
         <div class="auth-card">
             <h2 id="auth-title">Entrar no DuoTrip ❤️</h2>
-            <p id="auth-subtitle">Acessem o diário exclusivo de viagens do casal</p>
+            <p id="auth-subtitle">Acedam ao vosso diário exclusivo de viagens</p>
 
             <form id="auth-form">
                 <div class="form-group">
-                    <label for="email">Email do Casal</label>
+                    <label for="email">E-mail do Casal</label>
                     <input type="email" id="email" placeholder="casal@email.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Senha</label>
+                    <label for="password">Palavra-passe</label>
                     <input type="password" id="password" placeholder="••••••••" required>
                 </div>
 
@@ -270,13 +222,13 @@
             </form>
 
             <div class="toggle-auth">
-                <span id="toggle-text">Ainda não criaram conta?</span>
-                <a id="toggle-btn"> Criar Conta</a>
+                <span id="toggle-text">Ainda não criaram a vossa conta?</span>
+                <button type="button" id="toggle-btn">Criar Conta</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. PAINEL DO APP (PÓS-LOGIN) -->
+    <!-- 2. PAINEL DO APP -->
     <div id="app-container">
         <header class="app-header">
             <div class="app-logo">DuoTrip ❤️</div>
@@ -284,47 +236,41 @@
         </header>
 
         <section class="welcome-section">
-            <h1 id="couple-names">Bem-vindos, Casal! 👋</h1>
-            <p> Acessem seus progressos e memórias na estrada</p>
+            <h1>Bem-vindos, Casal! 👋</h1>
+            <p>Eis o vosso progresso e memórias na estrada</p>
         </section>
 
-        <!-- ESTATÍSTICAS DO CASAL -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="icon">💖</div>
                 <div class="number" id="stat-days">0</div>
-                <div class="label">Dias Juntos</div>
+                <div>Dias Juntos</div>
             </div>
             <div class="stat-card">
-                <div class="icon">🗺️</div>
                 <div class="number" id="stat-trips">0</div>
-                <div class="label">Viagens Realizadas</div>
+                <div>Viagens Realizadas</div>
             </div>
             <div class="stat-card">
-                <div class="icon">🏍️</div>
                 <div class="number" id="stat-km">0 km</div>
-                <div class="label">Total Rodado</div>
+                <div>Total Rodado</div>
             </div>
         </div>
 
-        <!-- GARAGEM DO CASAL -->
         <div class="section-title">
-            <span>🏍️ Nossa Garagem</span>
-            <button class="btn-add" onclick="alert('Registar nova moto!')">+ Adicionar Moto</button>
+            <span>🚗 🏍️ Nossa Garagem</span>
+            <button class="btn-add" onclick="alert('Registar novo veículo!')">+ Adicionar Veículo</button>
         </div>
-        <div class="content-grid" id="garage-list">
+        <div class="content-grid">
             <div class="item-card">
-                <h3>Veículo Principal</h3>
-                <p>Adicionem seus veículos para organizar a quilometragem de cada aventura.</p>
+                <h3>Seu Veículo Principal</h3>
+                <p>Adicionem as vossas motos, carros ou motorhomes para organizar a quilometragem.</p>
             </div>
         </div>
 
-        <!-- ÁLBUM DE VIAGENS -->
         <div class="section-title">
             <span>🗺️ Nossas Viagens</span>
             <button class="btn-add" onclick="alert('Registar nova viagem!')">+ Registar Viagem</button>
         </div>
-        <div class="content-grid" id="trips-list">
+        <div class="content-grid">
             <div class="item-card">
                 <h3>Primeira Viagem</h3>
                 <p>Registem aqui o primeiro destino, fotos e detalhes do percurso do casal.</p>
@@ -332,114 +278,118 @@
         </div>
     </div>
 
-    <!-- LÓGICA SUPABASE E INTERAÇÃO -->
+    <!-- SCRIPT DE LÓGICA -->
     <script>
-        // CONFIGURAÇÃO DO SUPABASE
-        // Substitui pelas tuas chaves do projeto Supabase
-        const SUPABASE_URL = 'https://rbosjykmfuazdkgkcggs.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU';
-        
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ATENÇÃO: Substitui pelas tuas chaves exatas do Supabase (Project Settings > API)
+        const SUPABASE_URL = 'https://SEU_PROJETO.supabase.co';
+        const SUPABASE_ANON_KEY = 'SUA_ANON_KEY_AQUI';
 
-        // ELEMENTOS DO DOM
-    const authContainer = document.getElementById('auth-container');
-    const appContainer = document.getElementById('app-container');
-    const authForm = document.getElementById('auth-form');
-    const authTitle = document.getElementById('auth-title');
-    const authSubtitle = document.getElementById('auth-subtitle');
-    const btnSubmit = document.getElementById('btn-submit');
-    const toggleBtn = document.getElementById('toggle-btn');
-    const toggleText = document.getElementById('toggle-text');
-    const btnLogout = document.getElementById('btn-logout');
+        let supabaseClient = null;
 
-    let isSignUp = false;
-
-    // ALTERAR ENTRE ENTRAR E CRIAR CONTA (FORÇANDO A MUDANÇA DE ESTADO)
-    toggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        isSignUp = !isSignUp; // Inverte o estado (de falso para verdadeiro, e vice-versa)
-        
-        if (isSignUp) {
-            authTitle.innerText = "Criar Conta no DuoTrip 💖";
-            authSubtitle.innerText = "Registem o vosso casal para começar a usar";
-            btnSubmit.innerText = "Criar Conta e Aceder ✨";
-            toggleText.innerText = "Já têm uma conta?";
-            toggleBtn.innerText = " Fazer Login";
-        } else {
-            authTitle.innerText = "Entrar no DuoTrip ❤️";
-            authSubtitle.innerText = "Acedam ao vosso diário exclusivo de viagens";
-            btnSubmit.innerText = "Entrar no App 🚀";
-            toggleText.innerText = "Ainda não criaram a vossa conta?";
-            toggleBtn.innerText = " Criar Conta";
-        }
-    });
-
-    // SUBMISSÃO DO FORMULÁRIO (DIRECIONA PARA REGISTO OU LOGIN CONFORME O ESTADO)
-    authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-
-        if (!email || !password) {
-            alert("Por favor, preencha o e-mail e a palavra-passe.");
-            return;
-        }
-
-        btnSubmit.disabled = true;
-        btnSubmit.innerText = "A processar...";
-
+        // Inicialização segura do Supabase
         try {
-            if (isSignUp) {
-                // MODO DE CRIAÇÃO DE CONTA
-                const { data, error } = await supabase.auth.signUp({ email, password });
-                if (error) throw error;
-
-                if (data?.session) {
-                    alert("Conta criada com sucesso! A entrar...");
-                    await checkUser();
-                } else {
-                    alert("Conta criada com sucesso! Por favor, faça login com os dados criados agora.");
-                    // Alterna automaticamente de volta para a tela de login
-                    toggleBtn.click();
-                }
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } else {
-                // MODO DE LOGIN NORMAL
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                await checkUser();
+                alert("Erro ao carregar o SDK do Supabase. Verifique a sua ligação à internet.");
             }
-        } catch (error) {
-            console.error("Erro na autenticação:", error);
-            alert("Erro: " + (error.message || "Não foi possível concluir a operação."));
-        } finally {
-            btnSubmit.disabled = false;
-            btnSubmit.innerText = isSignUp ? "Criar Conta e Aceder ✨" : "Entrar no App 🚀";
+        } catch (e) {
+            console.error("Erro na inicialização do Supabase:", e);
         }
-    });
 
-    // LOGOUT
-    btnLogout.addEventListener('click', async () => {
-        await supabase.auth.signOut();
+        const authContainer = document.getElementById('auth-container');
+        const appContainer = document.getElementById('app-container');
+        const authForm = document.getElementById('auth-form');
+        const authTitle = document.getElementById('auth-title');
+        const authSubtitle = document.getElementById('auth-subtitle');
+        const btnSubmit = document.getElementById('btn-submit');
+        const toggleBtn = document.getElementById('toggle-btn');
+        const toggleText = document.getElementById('toggle-text');
+        const btnLogout = document.getElementById('btn-logout');
+
+        let isSignUp = false;
+
+        // Alternar entre Login e Criar Conta
+        toggleBtn.addEventListener('click', () => {
+            isSignUp = !isSignUp;
+            if (isSignUp) {
+                authTitle.innerText = "Criar Conta no DuoTrip 💖";
+                authSubtitle.innerText = "Registem o vosso casal para começar a usar";
+                btnSubmit.innerText = "Criar Conta e Aceder ✨";
+                toggleText.innerText = "Já têm uma conta?";
+                toggleBtn.innerText = "Fazer Login";
+            } else {
+                authTitle.innerText = "Entrar no DuoTrip ❤️";
+                authSubtitle.innerText = "Acedam ao vosso diário exclusivo de viagens";
+                btnSubmit.innerText = "Entrar no App 🚀";
+                toggleText.innerText = "Ainda não criaram a vossa conta?";
+                toggleBtn.innerText = "Criar Conta";
+            }
+        });
+
+        // Clique no botão de Submissão (Login ou Registo)
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!supabaseClient) {
+                alert("Erro: O banco de dados do Supabase não foi configurado corretamente. Verifique as chaves URL e ANON_KEY.");
+                return;
+            }
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "A processar...";
+
+            try {
+                if (isSignUp) {
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                    if (error) throw error;
+
+                    if (data?.session) {
+                        alert("Conta criada com sucesso! A entrar...");
+                        checkUser();
+                    } else {
+                        alert("Conta criada! Pode agora fazer login.");
+                        toggleBtn.click();
+                    }
+                } else {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    checkUser();
+                }
+            } catch (error) {
+                alert("Erro: " + error.message);
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = isSignUp ? "Criar Conta e Aceder ✨" : "Entrar no App 🚀";
+            }
+        });
+
+        // Logout
+        btnLogout.addEventListener('click', async () => {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+                checkUser();
+            }
+        });
+
+        // Verificar utilizador logado
+        async function checkUser() {
+            if (!supabaseClient) return;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+            } else {
+                authContainer.style.display = 'flex';
+                appContainer.style.display = 'none';
+            }
+        }
+
         checkUser();
-    });
-
-    // VERIFICAR SESSÃO DO UTILIZADOR
-    async function checkUser() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            authContainer.style.display = 'none';
-            appContainer.style.display = 'block';
-        } else {
-            authContainer.style.display = 'flex';
-            appContainer.style.display = 'none';
-        }
-    }
-
-    // EXECUTAR AO CARREGAR A PÁGINA
-    checkUser();
-</script>
-</script>
-
+    </script>
 </body>
 
 </html>
