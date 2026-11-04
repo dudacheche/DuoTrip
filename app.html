@@ -229,7 +229,7 @@
     <div id="auth-container">
         <div class="auth-card">
             <h2 id="auth-title">Entrar no DuoTrip ❤️</h2>
-            <p id="auth-subtitle">Acedam ao vosso diário exclusivo de viagens</p>
+            <p id="auth-subtitle">Acessem o diário exclusivo de viagens de vocês</p>
 
             <form id="auth-form">
                 <div class="form-group">
@@ -237,7 +237,7 @@
                     <input type="email" id="email" placeholder="casal@email.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Palavra-passe</label>
+                    <label for="password">Senha</label>
                     <input type="password" id="password" placeholder="••••••••" required>
                 </div>
 
@@ -260,7 +260,7 @@
 
         <section class="welcome-section">
             <h1>Bem-vindos, Casal! 👋</h1>
-            <p>Eis o vosso progresso e memórias na estrada</p>
+            <p>Aqui estão o progresso e as memórias de vocês na estrada</p>
         </section>
 
         <div class="stats-grid">
@@ -280,16 +280,16 @@
             <button class="btn-add" onclick="openModal('vehicle-modal')">+ Adicionar Veículo</button>
         </div>
         <div class="content-grid" id="garage-list">
-            <p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo registado ainda.</p>
+            <p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>
         </div>
 
         <!-- VIAGENS -->
         <div class="section-title">
             <span>🗺️ Nossas Viagens</span>
-            <button class="btn-add" onclick="openModal('trip-modal')">+ Registar Viagem</button>
+            <button class="btn-add" onclick="openModal('trip-modal')">+ Registrar Viagem</button>
         </div>
         <div class="content-grid" id="trips-list">
-            <p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem registada ainda.</p>
+            <p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem cadastrada ainda.</p>
         </div>
     </div>
 
@@ -311,7 +311,7 @@
                         <option value="Motorhome">Motorhome</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-action">Guardar Veículo</button>
+                <button type="submit" class="btn-action">Salvar Veículo</button>
             </form>
         </div>
     </div>
@@ -320,7 +320,7 @@
     <div id="trip-modal" class="modal">
         <div class="modal-content">
             <button class="btn-close" onclick="closeModal('trip-modal')">✕ Fechar</button>
-            <h3>Registar Viagem 🗺️</h3>
+            <h3>Registrar Viagem 🗺️</h3>
             <form id="trip-form">
                 <div class="form-group">
                     <label>Título da Aventura</label>
@@ -334,7 +334,7 @@
                     <label>Distância Percorrida (km)</label>
                     <input type="number" id="trip-km" placeholder="180" required>
                 </div>
-                <button type="submit" class="btn-action">Guardar Viagem</button>
+                <button type="submit" class="btn-action">Salvar Viagem</button>
             </form>
         </div>
     </div>
@@ -350,7 +350,7 @@
             if (window.supabase) {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } else {
-                alert("Erro ao carregar o SDK do Supabase. Verifique a sua ligação.");
+                alert("Erro ao carregar o SDK do Supabase. Verifique sua conexão.");
             }
         } catch (e) {
             console.error("Erro na inicialização do Supabase:", e);
@@ -372,7 +372,7 @@
             isSignUp = !isSignUp;
             if (isSignUp) {
                 authTitle.innerText = "Criar Conta no DuoTrip 💖";
-                authSubtitle.innerText = "Faça o registro do casal para começar a usar";
+                authSubtitle.innerText = "Faça o cadastro do casal para começar a usar";
                 btnSubmit.innerText = "Criar Conta e Acessar ✨";
                 toggleText.innerText = "Já têm uma conta?";
                 toggleBtn.innerText = "Fazer Login";
@@ -391,13 +391,13 @@
             const password = document.getElementById('password').value;
 
             btnSubmit.disabled = true;
-            btnSubmit.innerText = "A processar...";
+            btnSubmit.innerText = "Processando...";
 
             try {
                 if (isSignUp) {
                     const { data, error } = await supabaseClient.auth.signUp({ email, password });
                     if (error) throw error;
-                    alert("Conta criada com sucesso! A entrar...");
+                    alert("Conta criada com sucesso! Entrando...");
                     checkUser();
                 } else {
                     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -413,3 +413,117 @@
         });
 
         btnLogout.addEventListener('click', async () => {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+                checkUser();
+            }
+        });
+
+        async function checkUser() {
+            if (!supabaseClient) return;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+                loadUserData(user.id);
+            } else {
+                authContainer.style.display = 'flex';
+                appContainer.style.display = 'none';
+            }
+        }
+
+        // FUNÇÕES DOS MODAIS
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // SALVAR VEÍCULO NO SUPABASE
+        document.getElementById('vehicle-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+
+            const vehicle_name = document.getElementById('vehicle-name').value;
+            const vehicle_type = document.getElementById('vehicle-type').value;
+
+            const { error } = await supabaseClient.from('garage').insert([{
+                user_id: user.id,
+                vehicle_name,
+                vehicle_type
+            }]);
+
+            if (error) {
+                alert("Erro ao salvar veículo: " + error.message);
+            } else {
+                closeModal('vehicle-modal');
+                document.getElementById('vehicle-form').reset();
+                loadUserData(user.id);
+            }
+        });
+
+        // SALVAR VIAGEM NO SUPABASE
+        document.getElementById('trip-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+
+            const title = document.getElementById('trip-title').value;
+            const destination = document.getElementById('trip-destination').value;
+            const distance_km = parseInt(document.getElementById('trip-km').value) || 0;
+
+            const { error } = await supabaseClient.from('trips').insert([{
+                user_id: user.id,
+                title,
+                destination,
+                distance_km
+            }]);
+
+            if (error) {
+                alert("Erro ao salvar viagem: " + error.message);
+            } else {
+                closeModal('trip-modal');
+                document.getElementById('trip-form').reset();
+                loadUserData(user.id);
+            }
+        });
+
+        // CARREGAR DADOS EM TEMPO REAL
+        async function loadUserData(userId) {
+            // Garagem
+            const { data: garageData } = await supabaseClient.from('garage').select('*').eq('user_id', userId);
+            const garageList = document.getElementById('garage-list');
+            garageList.innerHTML = '';
+
+            if (garageData && garageData.length > 0) {
+                garageData.forEach(v => {
+                    garageList.innerHTML += `<div class="item-card"><h3>${v.vehicle_name}</h3><p>Tipo: ${v.vehicle_type}</p></div>`;
+                });
+            } else {
+                garageList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>`;
+            }
+
+            // Viagens
+            const { data: tripsData } = await supabaseClient.from('trips').select('*').eq('user_id', userId);
+            const tripsList = document.getElementById('trips-list');
+            tripsList.innerHTML = '';
+
+            let totalKm = 0;
+            let totalTrips = tripsData ? tripsData.length : 0;
+
+            if (tripsData && tripsData.length > 0) {
+                tripsData.forEach(t => {
+                    totalKm += t.distance_km || 0;
+                    tripsList.innerHTML += `<div class="item-card"><h3>${t.title}</h3><p>Destino: ${t.destination} (${t.distance_km} km)</p></div>`;
+                });
+            } else {
+                tripsList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem cadastrada ainda.</p>`;
+            }
+
+            document.getElementById('stat-trips').innerText = totalTrips;
+            document.getElementById('stat-km').innerText = totalKm + " km";
+        }
+
+        checkUser();
+    </script>
+</body>
+
+</html>
