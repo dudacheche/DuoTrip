@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DuoTrip - Seu Painel ❤️</title>
 
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS SDK com parâmetros de segurança para evitar bloqueio de storage -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <style>
         * {
@@ -478,7 +478,13 @@
 
         try {
             if (window.supabase) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                    auth: {
+                        persistSession: true,
+                        autoRefreshToken: true,
+                        detectSessionInUrl: true
+                    }
+                });
             }
         } catch (e) {
             console.error("Erro Supabase:", e);
@@ -576,12 +582,4 @@
             if (authForm) {
                 authForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    if (!supabaseClient) {
-                        alert("Erro: Banco de dados não conectado.");
-                        return;
-                    }
-
-                    const email = document.getElementById('email').value.trim();
-                    const password = document.getElementById('password').value;
-
-                    btnSubmit.disab
+                    if (!supabaseClien
