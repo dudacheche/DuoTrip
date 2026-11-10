@@ -96,7 +96,7 @@
             cursor: pointer;
         }
 
-        .btn-auth, .btn-action {
+        .btn-auth {
             width: 100%;
             background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
             color: #ffffff;
@@ -110,20 +110,12 @@
             box-shadow: 0 8px 20px rgba(225, 29, 72, 0.4);
         }
 
-        .toggle-auth {
-            margin-top: 20px;
-            font-size: 0.9rem;
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(244, 114, 182, 0.4);
             color: #fce7f3;
-        }
-
-        .toggle-auth button {
-            background: none;
-            border: none;
-            color: #f472b6;
-            text-decoration: underline;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: none;
         }
 
         #app-container {
@@ -317,26 +309,20 @@
     <!-- 1. TELA DE AUTENTICAÇÃO -->
     <div id="auth-container">
         <div class="auth-card">
-            <h2 id="auth-title">Entrar no DuoTrip ❤️</h2>
-            <p id="auth-subtitle">Acessem o diário exclusivo de viagens de vocês</p>
+            <h2>DuoTrip ❤️</h2>
+            <p>Acesse o diário de viagens do casal</p>
 
-            <form id="auth-form">
-                <div class="form-group">
-                    <label for="email">E-mail do Casal</label>
-                    <input type="email" id="email" placeholder="casal@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
-                </div>
-
-                <button type="submit" class="btn-auth" id="btn-submit">Entrar no App 🚀</button>
-            </form>
-
-            <div class="toggle-auth">
-                <span id="toggle-text">Ainda não criaram conta?</span>
-                <button type="button" id="toggle-btn">Criar Conta</button>
+            <div class="form-group">
+                <label for="email">E-mail do Casal</label>
+                <input type="email" id="email" placeholder="casal@email.com" required>
             </div>
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="button" class="btn-auth" id="btn-login">Entrar no App 🚀</button>
+            <button type="button" class="btn-auth btn-secondary" id="btn-signup">Criar Conta ✨</button>
         </div>
     </div>
 
@@ -469,7 +455,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE LOGICA CORRIGIDO -->
+    <!-- SCRIPT COM BOTÕES INDEPENDENTES -->
     <script>
         const SUPABASE_URL = 'https://rbosjykmfuazdkgkcggs.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU';
@@ -489,8 +475,6 @@
         } catch (e) {
             console.error("Erro Supabase:", e);
         }
-
-        let isSignUp = false;
 
         window.updateCounter = function() {
             const startDateVal = document.getElementById('start-date').value;
@@ -551,36 +535,53 @@
         window.addEventListener('DOMContentLoaded', () => {
             const authContainer = document.getElementById('auth-container');
             const appContainer = document.getElementById('app-container');
-            const authForm = document.getElementById('auth-form');
-            const authTitle = document.getElementById('auth-title');
-            const authSubtitle = document.getElementById('auth-subtitle');
-            const btnSubmit = document.getElementById('btn-submit');
-            const toggleBtn = document.getElementById('toggle-btn');
-            const toggleText = document.getElementById('toggle-text');
+            const btnLogin = document.getElementById('btn-login');
+            const btnSignup = document.getElementById('btn-signup');
             const btnLogout = document.getElementById('btn-logout');
 
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    isSignUp = !isSignUp;
-                    if (isSignUp) {
-                        authTitle.innerText = "Criar Conta no DuoTrip 💖";
-                        authSubtitle.innerText = "Faça o cadastro do casal para começar a usar";
-                        btnSubmit.innerText = "Criar Conta e Acessar ✨";
-                        toggleText.innerText = "Já têm uma conta?";
-                        toggleBtn.innerText = "Fazer Login";
-                    } else {
-                        authTitle.innerText = "Entrar no DuoTrip ❤️";
-                        authSubtitle.innerText = "Acessem o diário exclusivo de viagens do casal";
-                        btnSubmit.innerText = "Entrar no App 🚀";
-                        toggleText.innerText = "Ainda não criaram conta?";
-                        toggleBtn.innerText = "Criar Conta";
+            // Ação de Login
+            if (btnLogin) {
+                btnLogin.addEventListener('click', async () => {
+                    if (!supabaseClient) return alert("Erro: Supabase não conectado.");
+                    const email = document.getElementById('email').value.trim();
+                    const password = document.getElementById('password').value;
+
+                    if (!email || !password) {
+                        alert("Preencha o e-mail e a senha!");
+                        return;
+                    }
+
+                    btnLogin.disabled = true;
+                    btnLogin.innerText = "Entrando...";
+
+                    try {
+                        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                        if (error) throw error;
+                        checkUser();
+                    } catch (error) {
+                        alert("Erro ao entrar: " + error.message);
+                    } finally {
+                        btnLogin.disabled = false;
+                        btnLogin.innerText = "Entrar no App 🚀";
                     }
                 });
             }
 
-            if (authForm) {
-                authForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    if (!supabaseClient) {
-                        alert("Erro: Banco de dados não
+            // Ação de Criar Conta
+            if (btnSignup) {
+                btnSignup.addEventListener('click', async () => {
+                    if (!supabaseClient) return alert("Erro: Supabase não conectado.");
+                    const email = document.getElementById('email').value.trim();
+                    const password = document.getElementById('password').value;
+
+                    if (!email || !password) {
+                        alert("Preencha o e-mail e a senha para criar a conta!");
+                        return;
+                    }
+
+                    btnSignup.disabled = true;
+                    btnSignup.innerText = "Criando conta...";
+
+                    try {
+                        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                        i
