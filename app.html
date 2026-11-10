@@ -469,7 +469,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT COM ALERTAS DE DIAGNÓSTICO -->
+    <!-- SCRIPT DE LOGICA CORRIGIDO -->
     <script>
         const SUPABASE_URL = 'https://rbosjykmfuazdkgkcggs.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU';
@@ -485,11 +485,9 @@
                         detectSessionInUrl: true
                     }
                 });
-            } else {
-                alert("ERRO: O SDK do Supabase não carregou!");
             }
         } catch (e) {
-            alert("Erro ao iniciar Supabase: " + e.message);
+            console.error("Erro Supabase:", e);
         }
 
         let isSignUp = false;
@@ -583,4 +581,6 @@
 
             if (authForm) {
                 authForm.addEventListener('submit', async (e) => {
-                    e.preventDefa
+                    e.preventDefault();
+                    if (!supabaseClient) {
+                        alert("Erro: Banco de dados não
