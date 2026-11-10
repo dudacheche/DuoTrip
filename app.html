@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DuoTrip - Seu Painel ❤️</title>
 
-    <!-- Supabase JS SDK com parâmetros de segurança para evitar bloqueio de storage -->
+    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <style>
@@ -469,7 +469,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE LOGICA INTEGRADA -->
+    <!-- SCRIPT COM ALERTAS DE DIAGNÓSTICO -->
     <script>
         const SUPABASE_URL = 'https://rbosjykmfuazdkgkcggs.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU';
@@ -485,9 +485,11 @@
                         detectSessionInUrl: true
                     }
                 });
+            } else {
+                alert("ERRO: O SDK do Supabase não carregou!");
             }
         } catch (e) {
-            console.error("Erro Supabase:", e);
+            alert("Erro ao iniciar Supabase: " + e.message);
         }
 
         let isSignUp = false;
@@ -581,5 +583,4 @@
 
             if (authForm) {
                 authForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    if (!supabaseClien
+                    e.preventDefa
