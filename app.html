@@ -455,7 +455,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT COM BOTÕES INDEPENDENTES -->
+    <!-- SCRIPT COM REDIRECIONAMENTO FORÇADO -->
     <script>
         const SUPABASE_URL = 'https://rbosjykmfuazdkgkcggs.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU';
@@ -539,6 +539,13 @@
             const btnSignup = document.getElementById('btn-signup');
             const btnLogout = document.getElementById('btn-logout');
 
+            function redirectToApp(userId) {
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+                loadUserData(userId);
+                updateCounter();
+            }
+
             // Ação de Login
             if (btnLogin) {
                 btnLogin.addEventListener('click', async () => {
@@ -557,7 +564,9 @@
                     try {
                         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                         if (error) throw error;
-                        checkUser();
+                        if (data.user) {
+                            redirectToApp(data.user.id);
+                        }
                     } catch (error) {
                         alert("Erro ao entrar: " + error.message);
                     } finally {
@@ -575,13 +584,4 @@
                     const password = document.getElementById('password').value;
 
                     if (!email || !password) {
-                        alert("Preencha o e-mail e a senha para criar a conta!");
-                        return;
-                    }
-
-                    btnSignup.disabled = true;
-                    btnSignup.innerText = "Criando conta...";
-
-                    try {
-                        const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                        i
+                        alert("Preencha o e-mail e a senha para criar a
