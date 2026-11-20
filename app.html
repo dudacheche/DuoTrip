@@ -1046,3 +1046,767 @@
                     <h4 class="form-titulo">Viagens cadastradas</h4>
                     <div id="adminListaViagens" class="admin-lista"></div>
                 </div>
+
+              <!-- ABA 2: GARAGEM -->
+                <div id="abaGaragem" style="display:none;">
+                    <h4 class="form-titulo">Adicionar Veículo à Garagem</h4>
+                    <form id="formVeiculo" onsubmit="salvarVeiculo(event)">
+                        <div class="form-duas-colunas">
+                            <div class="form-group">
+                                <label>Modelo do Veículo</label>
+                                <input type="text" id="vehNomeInput" class="form-control" placeholder="Ex: Titan 150" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Dono(a)</label>
+                                <input type="text" id="vehDonoInput" class="form-control" placeholder="Ex: Duda" required>
+                            </div>
+                        </div>
+                        <div class="form-duas-colunas">
+                            <div class="form-group">
+                                <label>Ano / Cor</label>
+                                <input type="text" id="vehDetalhesInput" class="form-control" placeholder="Ex: 2013 • Preta">
+                            </div>
+                            <div class="form-group">
+                                <label>Cilindrada / Motor</label>
+                                <input type="text" id="vehMotorInput" class="form-control" placeholder="Ex: 150cc">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primario">Salvar Veículo</button>
+                    </form>
+                    <hr class="separador">
+                    <h4 class="form-titulo">Veículos na Garagem</h4>
+                    <div id="adminListaVeiculos" class="admin-lista"></div>
+                </div>
+
+                <!-- ABA 3: PERFIL E META DO CASAL -->
+                <div id="abaConfig" style="display:none;">
+                    <h4 class="form-titulo">Personalizar Página do Casal</h4>
+                    <form id="formConfig" onsubmit="salvarConfiguracoes(event)">
+                        <div class="form-group">
+                            <label>Nome do Casal (Menu superior)</label>
+                            <input type="text" id="cfgCasalInput" class="form-control" placeholder="Ex: Duda e Daniel ❤️">
+                        </div>
+                        <div class="form-group">
+                            <label>Título Principal do Banner</label>
+                            <input type="text" id="cfgTituloInput" class="form-control" placeholder="Ex: Asfalto a Dois">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo do Banner</label>
+                            <input type="text" id="cfgSubtituloInput" class="form-control" placeholder="Ex: Nossa história sobre duas rodas ❤️🏍️">
+                        </div>
+                        <div class="form-duas-colunas">
+                            <div class="form-group">
+                                <label>Início do Relacionamento</label>
+                                <input type="date" id="cfgDataInicioInput" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Meta de Rodagem (KM)</label>
+                                <input type="number" id="cfgMetaInput" class="form-control" min="1" value="2000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Foto de Capa Principal (Topo)</label>
+                            <input type="file" id="cfgCapaInput" class="form-control" accept="image/*" onchange="previewHeroCapa(event)">
+                        </div>
+                        <button type="submit" class="btn-primario">Salvar Configurações</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE ÁLBUM & CARROSSEL DE FOTOS -->
+    <div id="modalAlbum" class="modal-overlay escondido">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modalTitulo">Álbum da viagem</h3>
+                    <p id="modalSubtitulo" class="modal-subtitulo"></p>
+                </div>
+                <button class="fechar" onclick="fecharModalAlbum()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="carrossel">
+                    <img id="carrosselImg" src="" alt="Foto da viagem">
+                    <button class="carrossel-btn prev" onclick="mudarFoto(-1)" aria-label="Foto anterior">❮</button>
+                    <button class="carrossel-btn next" onclick="mudarFoto(1)" aria-label="Próxima foto">❯</button>
+                    <span class="carrossel-contador"><span id="carrosselAtual">1</span> / <span id="carrosselTotal">1</span></span>
+                </div>
+                <div id="modalThumbs" class="galeria-thumbs"></div>
+                <p id="modalRelato" class="modal-relato"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICAÇÃO TOAST -->
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const SUPABASE_URL = "https://rbosjykmfuazdkgkcggs.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU";
+        const CAPA_PADRAO = "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1200&q=80";
+
+        let db = null;
+        try {
+            if (window.supabase) {
+                db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                    auth: {
+                        persistSession: true,
+                        autoRefreshToken: true,
+                        detectSessionInUrl: true
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Erro ao iniciar Supabase:", e);
+        }
+
+        let currentUser = null;
+        let viagens = [];
+        let veiculos = [];
+        let perfilCasal = {
+            casal_nome: "Nosso Acervo ❤️",
+            titulo_hero: "Asfalto a Dois",
+            subtitulo_hero: "Nossa história sobre duas rodas ❤️🏍️",
+            data_inicio: "2026-02-22",
+            meta_km: 2000,
+            capa_hero: CAPA_PADRAO
+        };
+
+        let tempCapaBase64 = "";
+        let tempAlbumBase64 = [];
+        let tempHeroCapaBase64 = "";
+        let viagemAtivaModal = null;
+        let fotoIndexAtiva = 0;
+
+        /* UTILITÁRIOS */
+        function mostrarToast(msg) {
+            const t = document.getElementById("toast");
+            if (!t) return;
+            t.innerText = msg;
+            t.classList.add("visivel");
+            clearTimeout(mostrarToast.timer);
+            mostrarToast.timer = setTimeout(() => t.classList.remove("visivel"), 3500);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "").replace(/[&<>\"']/g, (c) => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[c]));
+        }
+
+        function toggleMenu() {
+            const links = document.getElementById("menuLinks");
+            if (links) links.classList.toggle("ativo");
+        }
+
+        function abrirModalAdmin() {
+            const links = document.getElementById("menuLinks");
+            if (links?.classList.contains("ativo")) links.classList.remove("ativo");
+            document.getElementById("modalAdmin").classList.remove("escondido");
+            renderizarAdminLista();
+            renderizarAdminVeiculos();
+        }
+
+        function fecharModalAdmin() {
+            document.getElementById("modalAdmin").classList.add("escondido");
+        }
+
+      function mudarAbaAdmin(aba) {
+            document.getElementById("abaViagens").style.display = aba === "viagens" ? "block" : "none";
+            document.getElementById("abaGaragem").style.display = aba === "garagem" ? "block" : "none";
+            document.getElementById("abaConfig").style.display = aba === "config" ? "block" : "none";
+
+            document.getElementById("tabBtnViagens").classList.toggle("ativa", aba === "viagens");
+            document.getElementById("tabBtnGaragem").classList.toggle("ativa", aba === "garagem");
+            document.getElementById("tabBtnConfig").classList.toggle("ativa", aba === "config");
+        }
+
+        /* COMPRESSÃO DE IMAGENS */
+        async function comprimirImagem(file, maxWidth = 1000, maxHeight = 1000, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.width, height = img.height;
+                        if (width > height && width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        } else if (height >= width && height > maxHeight) {
+                            width = Math.round((width * maxHeight) / height);
+                            height = maxHeight;
+                        }
+                        const canvas = document.createElement("canvas");
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL("image/jpeg", quality));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        /* AUTENTICAÇÃO E REDIRECIONAMENTO */
+        function entrarNoPainel(user) {
+            currentUser = user;
+            document.getElementById("auth-container").style.display = "none";
+            document.getElementById("app-container").style.display = "block";
+            const emailEl = document.getElementById("adminUserEmail");
+            if (emailEl) emailEl.innerText = "✓ " + user.email;
+            carregarDadosCasal();
+        }
+
+        async function sairApp() {
+            if (db) await db.auth.signOut();
+            currentUser = null;
+            fecharModalAdmin();
+            document.getElementById("auth-container").style.display = "flex";
+            document.getElementById("app-container").style.display = "none";
+            mostrarToast("Você saiu da conta.");
+        }
+
+        async function alterarSenhaAdmin() {
+            const nova = prompt("Digite a nova senha (mínimo 6 caracteres):");
+            if (!nova || !nova.trim()) return;
+            const { error } = await db.auth.updateUser({ password: nova.trim() });
+            if (error) mostrarToast("Erro ao alterar senha: " + error.message);
+            else mostrarToast("Senha atualizada com sucesso!");
+        }
+
+        /* CARREGAR DADOS DO CASAL NO SUPABASE */
+        async function carregarDadosCasal() {
+            if (!db || !currentUser) return;
+
+            const { data: cfg } = await db.from("couple_profiles").select("*").eq("user_id", currentUser.id).maybeSingle();
+            if (cfg) {
+                perfilCasal = {
+                    casal_nome: cfg.casal_nome || "Nosso Acervo ❤️",
+                    titulo_hero: cfg.titulo_hero || "Asfalto a Dois",
+                    subtitulo_hero: cfg.subtitulo_hero || "Nossa história sobre duas rodas ❤️🏍️",
+                    data_inicio: cfg.data_inicio || "2026-02-22",
+                    meta_km: Number(cfg.meta_km) || 2000,
+                    capa_hero: cfg.capa_hero || CAPA_PADRAO
+                };
+            }
+            aplicarPerfilNaTela();
+
+            const { data: garageData } = await db.from("garage").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: true });
+            veiculos = garageData || [];
+            atualizarSelectVeiculos();
+
+            const { data: tripsData } = await db.from("trips").select("*").eq("user_id", currentUser.id).order("trip_date", { ascending: false });
+            viagens = tripsData || [];
+
+            atualizarEstatisticas();
+            renderizarGaragem();
+            renderizarViagens();
+            renderizarAdminLista();
+            renderizarAdminVeiculos();
+        }
+
+        function aplicarPerfilNaTela() {
+            document.getElementById("navCasalNome").innerText = perfilCasal.casal_nome;
+            document.getElementById("heroTitulo").innerText = perfilCasal.titulo_hero;
+            document.getElementById("heroSubtitulo").innerText = perfilCasal.subtitulo_hero;
+            document.getElementById("heroCoverImg").src = perfilCasal.capa_hero || CAPA_PADRAO;
+
+            document.getElementById("cfgCasalInput").value = perfilCasal.casal_nome;
+            document.getElementById("cfgTituloInput").value = perfilCasal.titulo_hero;
+            document.getElementById("cfgSubtituloInput").value = perfilCasal.subtitulo_hero;
+            document.getElementById("cfgDataInicioInput").value = perfilCasal.data_inicio;
+            document.getElementById("cfgMetaInput").value = perfilCasal.meta_km;
+        }
+
+        function calcularDiasJuntos() {
+            const inicio = new Date((perfilCasal.data_inicio || "2026-02-22") + "T00:00:00");
+            const hoje = new Date();
+            inicio.setHours(0, 0, 0, 0);
+            hoje.setHours(0, 0, 0, 0);
+            return Math.max(0, Math.floor((hoje.getTime() - inicio.getTime()) / 86400000));
+        }
+
+        function atualizarEstatisticas() {
+            let totalKmViagens = 0;
+            const kmPorVeiculo = {};
+
+            veiculos.forEach(v => {
+                kmPorVeiculo[v.vehicle_name] = 0;
+            });
+
+            viagens.forEach(v => {
+                const km = Number(v.distance_km) || 0;
+                totalKmViagens += km;
+
+                if (v.vehicle_used === "Ambas") {
+                    veiculos.forEach(veh => {
+                        kmPorVeiculo[veh.vehicle_name] = (kmPorVeiculo[veh.vehicle_name] || 0) + km;
+                    });
+                } else if (v.vehicle_used && kmPorVeiculo[v.vehicle_used] !== undefined) {
+                    kmPorVeiculo[v.vehicle_used] += km;
+                }
+            });
+
+            const grid = document.getElementById("statsGrid");
+            let cardsHtml = `
+                <div class="card"><h2>${calcularDiasJuntos()}</h2><p>Dias Juntos</p></div>
+                <div class="card"><h2>${viagens.length}</h2><p>Viagens Realizadas</p></div>
+            `;
+
+            veiculos.forEach(veh => {
+                const kmVeh = kmPorVeiculo[veh.vehicle_name] || 0;
+                cardsHtml += `<div class="card"><h2>${kmVeh.toLocaleString("pt-BR")} km</h2><p>KM ${escapeHtml(veh.vehicle_name)}</p></div>`;
+            });
+
+            cardsHtml += `
+                <div class="card"><h2>${totalKmViagens.toLocaleString("pt-BR")} km</h2><p>KM Rodados Juntos</p></div>
+                <div class="card"><h2 id="metaAtual">0%</h2><p>Progresso da Meta</p></div>
+            `;
+            grid.innerHTML = cardsHtml;
+
+            const metaAlvo = Number(perfilCasal.meta_km) || 2000;
+            const pct = Math.min(Math.round((totalKmViagens / metaAlvo) * 100), 100);
+            document.getElementById("metaAtual").innerText = `${pct}%`;
+            document.getElementById("progresso").style.width = `${pct}%`;
+            document.getElementById("textoMeta").innerText = `${totalKmViagens.toLocaleString("pt-BR")} / ${metaAlvo} km`;
+
+            return kmPorVeiculo;
+        }
+
+        function renderizarGaragem() {
+            const kmPorVeiculo = atualizarEstatisticas();
+            const cont = document.getElementById("garagemGrid");
+            if (!veiculos.length) {
+                cont.innerHTML = `<p style="text-align:center;color:#fda4af;grid-column:1/-1;">Nenhum veículo cadastrado ainda. Clique em ⚙️ Admin para adicionar.</p>`;
+                return;
+            }
+            cont.innerHTML = veiculos.map(v => {
+                const kmTotalVeh = kmPorVeiculo[v.vehicle_name] || 0;
+                return `
+                <div class="moto-card-compacto">
+                    <h3>🏍️ ${escapeHtml(v.vehicle_name)}</h3>
+                    <p><strong>${escapeHtml(v.owner_name || "Casal")}</strong> ${v.details ? "• " + escapeHtml(v.details) : ""}</p>
+                    ${v.engine ? `<p>Motor: ${escapeHtml(v.engine)}</p>` : ""}
+                    <p>KM Registrado: <span class="km-destaque">${kmTotalVeh.toLocaleString("pt-BR")} km</span></p>
+                </div>`;
+            }).join("");
+      }
+
+      function atualizarSelectVeiculos() {
+            const select = document.getElementById("motoInput");
+            if (!select) return;
+            let opts = "";
+            veiculos.forEach(v => {
+                opts += `<option value="${escapeHtml(v.vehicle_name)}">${escapeHtml(v.vehicle_name)} (${escapeHtml(v.owner_name || "Casal")})</option>`;
+            });
+            opts += `<option value="Ambas">Todos / Ambos os Veículos</option>`;
+            select.innerHTML = opts;
+        }
+
+        function renderizarViagens() {
+            const lista = document.getElementById("listaViagens");
+            if (!viagens.length) {
+                lista.innerHTML = `<p style="text-align:center;color:#fda4af;grid-column:1/-1;">Nenhuma viagem cadastrada ainda. Clique em ⚙️ Admin para registrar a primeira!</p>`;
+                return;
+            }
+            lista.innerHTML = viagens.map(v => {
+                let albumArray = [];
+                try {
+                    albumArray = Array.isArray(v.album_photos) ? v.album_photos : JSON.parse(v.album_photos || "[]");
+                } catch { albumArray = []; }
+
+                const numFotos = albumArray.length || (v.trip_photo ? 1 : 0);
+                const dataFormatada = v.trip_date ? new Date(v.trip_date + "T00:00:00").toLocaleDateString("pt-BR") : "Data não informada";
+                const capaImg = v.trip_photo || albumArray[0] || CAPA_PADRAO;
+
+                return `
+                <div class="viagem-card" onclick="abrirAlbumModal('${escapeHtml(v.id)}')">
+                    <img class="viagem-capa" src="${escapeHtml(capaImg)}" alt="${escapeHtml(v.title)}" onerror="this.src='${CAPA_PADRAO}'">
+                    <div class="viagem-topo">
+                        <span class="viagem-etiqueta">🏍️ ${escapeHtml(v.vehicle_used || "Viagem")}</span>
+                        <span class="viagem-data">${escapeHtml(dataFormatada)}</span>
+                    </div>
+                    <h3 class="viagem-cidade">${escapeHtml(v.title)}</h3>
+                    <p class="viagem-descricao">${escapeHtml(v.description || "Clique para ver as fotos e relato.")}</p>
+                    <div class="viagem-distancia">
+                        <span class="viagem-icone">🛣️</span>
+                        <div class="viagem-texto-distancia">
+                            <span class="viagem-km">${Number(v.distance_km) || 0} KM</span>
+                            <span class="viagem-legenda">Distância Rodada</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-abrir-album">🖼️ Ver Álbum (${numFotos} fotos)</button>
+                </div>`;
+            }).join("");
+        }
+
+        /* PRÉ-VISUALIZAÇÕES DE FOTOS */
+        async function previewCapa(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            try {
+                tempCapaBase64 = await comprimirImagem(file);
+                document.getElementById("capaPreviewImg").src = tempCapaBase64;
+                document.getElementById("previewCapaContainer").style.display = "block";
+            } catch {
+                mostrarToast("Erro ao processar imagem da capa.");
+            }
+        }
+
+        async function previewHeroCapa(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            try {
+                tempHeroCapaBase64 = await comprimirImagem(file, 1400, 800, 0.75);
+                mostrarToast("Imagem de capa pronta para salvar!");
+            } catch {
+                mostrarToast("Erro ao processar imagem.");
+            }
+        }
+
+        async function previewAlbum(event) {
+            const files = Array.from(event.target.files || []);
+            tempAlbumBase64 = [];
+            const container = document.getElementById("previewAlbumContainer");
+            container.innerHTML = "";
+            for (const file of files) {
+                try {
+                    const imgData = await comprimirImagem(file, 900, 900, 0.65);
+                    tempAlbumBase64.push(imgData);
+                    const img = document.createElement("img");
+                    img.src = imgData;
+                    img.className = "mini-preview";
+                    container.appendChild(img);
+                } catch (err) {
+                    console.error("Erro ao processar foto:", err);
+                }
+            }
+                    }
+
+      /* SALVAR VIAGEM */
+        async function salvarViagem(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const editId = document.getElementById("editId").value;
+            const title = document.getElementById("destinoInput").value.trim();
+            const trip_date = document.getElementById("dataInput").value;
+            const distance_km = Number(document.getElementById("kmInput").value);
+            const vehicle_used = document.getElementById("motoInput").value;
+            const description = document.getElementById("relatoInput").value.trim();
+
+            const submit = document.querySelector("#formViagem button[type='submit']");
+            submit.disabled = true;
+            submit.textContent = "Salvando…";
+
+            try {
+                const existente = editId ? viagens.find(v => String(v.id) === String(editId)) : null;
+                let capaFinal = tempCapaBase64 || (existente ? existente.trip_photo : "");
+                let albumFinal = [];
+
+                if (tempAlbumBase64.length > 0) {
+                    albumFinal = tempAlbumBase64;
+                    if (!capaFinal) capaFinal = albumFinal[0];
+                } else if (existente && existente.album_photos) {
+                    albumFinal = Array.isArray(existente.album_photos) ? existente.album_photos : JSON.parse(existente.album_photos || "[]");
+                }
+
+                const payload = {
+                    user_id: currentUser.id,
+                    title,
+                    destination: title,
+                    trip_date,
+                    distance_km,
+                    vehicle_used,
+                    description,
+                    trip_photo: capaFinal || CAPA_PADRAO,
+                    album_photos: albumFinal
+                };
+
+                if (editId) {
+                    const { error } = await db.from("trips").update(payload).eq("id", editId).eq("user_id", currentUser.id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await db.from("trips").insert([payload]);
+                    if (error) throw error;
+                }
+
+                resetForm();
+                await carregarDadosCasal();
+                mostrarToast(editId ? "Viagem atualizada!" : "Viagem salva com sucesso!");
+            } catch (err) {
+                mostrarToast("Erro ao salvar: " + err.message);
+            } finally {
+                submit.disabled = false;
+                submit.textContent = "Salvar viagem";
+            }
+        }
+
+        function resetForm() {
+            document.getElementById("formViagem").reset();
+            document.getElementById("editId").value = "";
+            tempCapaBase64 = "";
+            tempAlbumBase64 = [];
+            document.getElementById("previewCapaContainer").style.display = "none";
+            document.getElementById("previewAlbumContainer").innerHTML = "";
+            document.getElementById("formTitulo").innerText = "Cadastrar Nova Viagem";
+            document.getElementById("btnCancelarEdit").style.display = "none";
+        }
+
+        function editarViagemAdmin(id) {
+            const v = viagens.find(item => String(item.id) === String(id));
+            if (!v) return;
+            document.getElementById("editId").value = v.id;
+            document.getElementById("destinoInput").value = v.title;
+            document.getElementById("dataInput").value = v.trip_date || "";
+            document.getElementById("kmInput").value = v.distance_km;
+            document.getElementById("motoInput").value = v.vehicle_used || "Ambas";
+            document.getElementById("relatoInput").value = v.description || "";
+            tempCapaBase64 = "";
+            tempAlbumBase64 = [];
+            if (v.trip_photo) {
+                document.getElementById("capaPreviewImg").src = v.trip_photo;
+                document.getElementById("previewCapaContainer").style.display = "block";
+            }
+            document.getElementById("formTitulo").innerText = "Editar Viagem";
+            document.getElementById("btnCancelarEdit").style.display = "block";
+        }
+
+        async function excluirViagemAdmin(id) {
+            if (!confirm("Excluir esta viagem permanentemente?")) return;
+            const { error } = await db.from("trips").delete().eq("id", id).eq("user_id", currentUser.id);
+            if (error) mostrarToast("Erro ao excluir: " + error.message);
+            else {
+                await carregarDadosCasal();
+                mostrarToast("Viagem removida.");
+            }
+        }
+
+        function renderizarAdminLista() {
+            const cont = document.getElementById("adminListaViagens");
+            if (!cont) return;
+            if (!viagens.length) {
+                cont.innerHTML = "<p style='color:#fda4af;font-size:.85rem;'>Nenhuma viagem salva.</p>";
+                return;
+            }
+            cont.innerHTML = viagens.map(v => `
+                <div class="admin-viagem-item">
+                    <div>
+                        <strong class="admin-destino">${escapeHtml(v.title)}</strong>
+                        <span class="admin-km">${Number(v.distance_km) || 0} KM • ${escapeHtml(v.vehicle_used || "")}</span>
+                    </div>
+                    <div>
+                        <button class="btn-secundario" onclick="editarViagemAdmin('${escapeHtml(v.id)}')">✏️ Editar</button>
+                        <button class="btn-secundario btn-excluir" onclick="excluirViagemAdmin('${escapeHtml(v.id)}')">🗑️</button>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+      /* GARAGEM ADMIN */
+        async function salvarVeiculo(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+            const vehicle_name = document.getElementById("vehNomeInput").value.trim();
+            const owner_name = document.getElementById("vehDonoInput").value.trim();
+            const details = document.getElementById("vehDetalhesInput").value.trim();
+            const engine = document.getElementById("vehMotorInput").value.trim();
+
+            const { error } = await db.from("garage").insert([{
+                user_id: currentUser.id,
+                vehicle_name,
+                owner_name,
+                details,
+                engine,
+                vehicle_km: 0
+            }]);
+
+            if (error) mostrarToast("Erro ao salvar veículo: " + error.message);
+            else {
+                document.getElementById("formVeiculo").reset();
+                await carregarDadosCasal();
+                mostrarToast("Veículo adicionado à garagem!");
+            }
+        }
+
+        async function excluirVeiculoAdmin(id) {
+            if (!confirm("Remover este veículo da garagem?")) return;
+            const { error } = await db.from("garage").delete().eq("id", id).eq("user_id", currentUser.id);
+            if (error) mostrarToast("Erro: " + error.message);
+            else {
+                await carregarDadosCasal();
+                mostrarToast("Veículo removido.");
+            }
+        }
+
+        function renderizarAdminVeiculos() {
+            const cont = document.getElementById("adminListaVeiculos");
+            if (!cont) return;
+            if (!veiculos.length) {
+                cont.innerHTML = "<p style='color:#fda4af;font-size:.85rem;'>Nenhum veículo na garagem.</p>";
+                return;
+            }
+            const kmPorVeiculo = atualizarEstatisticas();
+            cont.innerHTML = veiculos.map(v => {
+                const kmVeh = kmPorVeiculo[v.vehicle_name] || 0;
+                return `
+                <div class="admin-viagem-item">
+                    <div>
+                        <strong class="admin-destino">${escapeHtml(v.vehicle_name)} (${escapeHtml(v.owner_name || "")})</strong>
+                        <span class="admin-km">KM Registrado: ${kmVeh.toLocaleString("pt-BR")} km</span>
+                    </div>
+                    <button class="btn-secundario btn-excluir" onclick="excluirVeiculoAdmin('${escapeHtml(v.id)}')">🗑️</button>
+                </div>`;
+            }).join("");
+        }
+
+        /* SALVAR PERFIL E META */
+        async function salvarConfiguracoes(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const payload = {
+                user_id: currentUser.id,
+                casal_nome: document.getElementById("cfgCasalInput").value.trim() || "Nosso Acervo ❤️",
+                titulo_hero: document.getElementById("cfgTituloInput").value.trim() || "Asfalto a Dois",
+                subtitulo_hero: document.getElementById("cfgSubtituloInput").value.trim() || "Nossa história sobre duas rodas ❤️🏍️",
+                data_inicio: document.getElementById("cfgDataInicioInput").value || "2026-02-22",
+                meta_km: Number(document.getElementById("cfgMetaInput").value) || 2000,
+                capa_hero: tempHeroCapaBase64 || perfilCasal.capa_hero
+            };
+
+            const { error } = await db.from("couple_profiles").upsert(payload, { onConflict: "user_id" });
+            if (error) {
+                mostrarToast("Erro ao salvar perfil: " + error.message);
+            } else {
+                tempHeroCapaBase64 = "";
+                await carregarDadosCasal();
+                mostrarToast("Configurações do casal salvas!");
+            }
+        }
+
+        /* ÁLBUM E CARROSSEL */
+        function abrirAlbumModal(id) {
+            viagemAtivaModal = viagens.find(v => String(v.id) === String(id));
+            if (!viagemAtivaModal) return;
+            fotoIndexAtiva = 0;
+
+            document.getElementById("modalTitulo").innerText = viagemAtivaModal.title;
+            const dataFmt = viagemAtivaModal.trip_date ? new Date(viagemAtivaModal.trip_date + "T00:00:00").toLocaleDateString("pt-BR") : "Data não informada";
+            document.getElementById("modalSubtitulo").innerText = `${dataFmt} • ${viagemAtivaModal.distance_km} KM • Veículo: ${viagemAtivaModal.vehicle_used || "N/A"}`;
+            document.getElementById("modalRelato").innerText = viagemAtivaModal.description || "Sem história/relato cadastrado.";
+
+            renderizarCarrossel();
+            document.getElementById("modalAlbum").classList.remove("escondido");
+        }
+
+        function fecharModalAlbum() {
+            document.getElementById("modalAlbum").classList.add("escondido");
+            viagemAtivaModal = null;
+        }
+
+        function renderizarCarrossel() {
+            if (!viagemAtivaModal) return;
+            let fotos = [];
+            try {
+                fotos = Array.isArray(viagemAtivaModal.album_photos) ? viagemAtivaModal.album_photos : JSON.parse(viagemAtivaModal.album_photos || "[]");
+            } catch { fotos = []; }
+
+            if (!fotos.length) fotos = [viagemAtivaModal.trip_photo || CAPA_PADRAO];
+
+            fotoIndexAtiva = ((fotoIndexAtiva % fotos.length) + fotos.length) % fotos.length;
+            document.getElementById("carrosselImg").src = fotos[fotoIndexAtiva];
+            document.getElementById("carrosselAtual").innerText = fotoIndexAtiva + 1;
+            document.getElementById("carrosselTotal").innerText = fotos.length;
+            document.getElementById("modalThumbs").innerHTML = fotos.map((f, idx) => `
+                <img src="${escapeHtml(f)}" alt="Miniatura ${idx + 1}" class="thumb ${idx === fotoIndexAtiva ? "ativa" : ""}" onclick="selecionarFoto(${idx})">
+            `).join("");
+        }
+
+        function mudarFoto(dir) {
+            if (!viagemAtivaModal) return;
+            let fotos = [];
+            try {
+                fotos = Array.isArray(viagemAtivaModal.album_photos) ? viagemAtivaModal.album_photos : JSON.parse(viagemAtivaModal.album_photos || "[]");
+            } catch { fotos = []; }
+            if (!fotos.length) fotos = [viagemAtivaModal.trip_photo || CAPA_PADRAO];
+            fotoIndexAtiva = (fotoIndexAtiva + dir + fotos.length) % fotos.length;
+            renderizarCarrossel();
+        }
+
+        function selecionarFoto(idx) {
+            fotoIndexAtiva = idx;
+            renderizarCarrossel();
+        }
+
+      /* INICIALIZAÇÃO DOS BOTÕES DE LOGIN/CADASTRO */
+        window.addEventListener("DOMContentLoaded", async () => {
+            const btnLogin = document.getElementById("btn-login");
+            const btnSignup = document.getElementById("btn-signup");
+
+            if (btnLogin) {
+                btnLogin.addEventListener("click", async () => {
+                    if (!db) return alert("Erro: Supabase não conectado.");
+                    const email = document.getElementById("loginEmail").value.trim();
+                    const password = document.getElementById("loginSenha").value;
+                    if (!email || !password) return alert("Preencha o e-mail e a senha!");
+
+                    btnLogin.disabled = true;
+                    btnLogin.innerText = "Entrando...";
+                    try {
+                        const { data, error } = await db.auth.signInWithPassword({ email, password });
+                        if (error) throw error;
+                        if (data.user) entrarNoPainel(data.user);
+                    } catch (err) {
+                        alert("Erro ao entrar: " + err.message);
+                    } finally {
+                        btnLogin.disabled = false;
+                        btnLogin.innerText = "Entrar no Painel 🚀";
+                    }
+                });
+            }
+
+            if (btnSignup) {
+                btnSignup.addEventListener("click", async () => {
+                    if (!db) return alert("Erro: Supabase não conectado.");
+                    const email = document.getElementById("loginEmail").value.trim();
+                    const password = document.getElementById("loginSenha").value;
+                    if (!email || !password) return alert("Preencha o e-mail e a senha para criar a conta!");
+
+                    btnSignup.disabled = true;
+                    btnSignup.innerText = "Criando conta...";
+                    try {
+                        const { data, error } = await db.auth.signUp({ email, password });
+                        if (error) throw error;
+                        if (data.user) {
+                            alert("Conta criada com sucesso!");
+                            entrarNoPainel(data.user);
+                        }
+                    } catch (err) {
+                        alert("Erro ao criar conta: " + err.message);
+                    } finally {
+                        btnSignup.disabled = false;
+                        btnSignup.innerText = "Criar Conta ✨";
+                    }
+                });
+            }
+
+            if (db) {
+                const { data } = await db.auth.getSession();
+                if (data?.session?.user) {
+                    entrarNoPainel(data.session.user);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
