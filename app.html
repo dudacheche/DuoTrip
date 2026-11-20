@@ -584,4 +584,177 @@
                     const password = document.getElementById('password').value;
 
                     if (!email || !password) {
-                        alert("Preencha o e-mail e a senha para criar a
+                        alert("Preencha o e-mail e a senha para criar a senha para criar a conta!");
+                        return;
+                    }
+
+                    btnSignup.disabled = true;
+                    btnSignup.innerText = "Criando conta...";
+
+                    try {
+                        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                        if (error) throw error;
+                        
+                        alert("Conta criada com sucesso!");
+                        if (data.user) {
+                            redirectToApp(data.user.id);
+                        }
+                    } catch (error) {
+                        alert("Erro ao criar conta: " + error.message);
+                    } finally {
+                        btnSignup.disabled = false;
+                        btnSignup.innerText = "Criar Conta ✨";
+                    }
+                });
+      }
+          if (btnLogout) {
+                btnLogout.addEventListener('click', async () => {
+                    if (supabaseClient) {
+                        await supabaseClient.auth.signOut();
+                        authContainer.style.display = 'flex';
+                        appContainer.style.display = 'none';
+                    }
+                });
+            }
+
+            async function checkUser() {
+                if (!supabaseClient) return;
+                try {
+                    const { data: { user } } = await supabaseClient.auth.getUser();
+                    if (user) {
+                        redirectToApp(user.id);
+                    }
+                } catch (err) {
+                    authContainer.style.display = 'flex';
+                    appContainer.style.display = 'none';
+                }
+            }
+
+            const vehicleForm = document.getElementById('vehicle-form');
+            if (vehicleForm) {
+                vehicleForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const { data: { user } } = await supabaseClient.auth.getUser();
+                    if (!user) return;
+
+                    const vehicle_name = document.getElementById('vehicle-name').value;
+                    const vehicle_type = document.getElementById('vehicle-type').value;
+                    const vehicle_km = parseInt(document.getElementById('vehicle-km').value) || 0;
+
+                    const { error } = await supabaseClient.from('garage').insert([{
+                        user_id: user.id,
+                        vehicle_name,
+                        vehicle_type,
+                        vehicle_km
+                    }]);
+
+                    if (error) {
+                        alert("Erro ao salvar veículo: " + error.message);
+                    } else {
+                        closeModal('vehicle-modal');
+                        vehicleForm.reset();
+                        loadUserData(user.id);
+                    }
+                });
+            }
+          const tripForm = document.getElementById('trip-form');
+            if (tripForm) {
+                tripForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const { data: { user } } = await supabaseClient.auth.getUser();
+                    if (!user) return;
+
+                    const title = document.getElementById('trip-title').value;
+                    const destination = document.getElementById('trip-destination').value;
+                    const distance_km = parseInt(document.getElementById('trip-km').value) || 0;
+                    const vehicle_used = document.getElementById('trip-vehicle').value;
+                    const two_vehicles = document.getElementById('trip-two-vehicles').checked;
+                    const trip_photo = document.getElementById('trip-photo').value;
+
+                    if (!vehicle_used) {
+                        alert("Por favor, selecione um veículo.");
+                        return;
+                    }
+
+                    const { error: tripError } = await supabaseClient.from('trips').insert([{
+                        user_id: user.id,
+                        title,
+                        destination,
+                        distance_km,
+                        vehicle_used,
+                        two_vehicles,
+                        trip_photo
+                    }]);
+
+                    if (tripError) {
+                        alert("Erro ao salvar viagem: " + tripError.message);
+                        return;
+                    }
+
+                    // Atualizar KM do veículo selecionado
+                    const { data: vehData } = await supabaseClient.from('garage').select('*').eq('user_id', user.id).eq('vehicle_name', vehicle_used).single();
+                    if (vehData) {
+                        const novoKm = (vehData.vehicle_km || 0) + distance_km;
+                        await supabaseClient.from('garage').update({ vehicle_km: novoKm }).eq('id', vehData.id);
+                    }
+
+                    closeModal('trip-modal');
+                    tripForm.reset();
+                    loadUserData(user.id);
+                });
+            }
+          async function loadUserData(userId) {
+                if (!supabaseClient) return;
+
+                const { data: garageData } = await supabaseClient.from('garage').select('*').eq('user_id', userId);
+                const garageList = document.getElementById('garage-list');
+                if (garageList) {
+                    garageList.innerHTML = '';
+                    if (garageData && garageData.length > 0) {
+                        garageData.forEach(v => {
+                            garageList.innerHTML += `<div class="item-card"><h3>${v.vehicle_name}</h3><p>Tipo: ${v.vehicle_type}</p><p style="color: #f472b6; font-weight: bold; margin-top: 5px;">📍 KM Acumulado: ${v.vehicle_km || 0} km</p></div>`;
+                        });
+                    } else {
+                        garageList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>`;
+                    }
+                }
+
+                const { data: tripsData } = await supabaseClient.from('trips').select('*').eq('user_id', userId);
+                const tripsList = document.getElementById('trips-list');
+                if (tripsList) {
+                    tripsList.innerHTML = '';
+                    let totalKmCasal = 0;
+                    let totalTrips = tripsData ? tripsData.length : 0;
+
+                    if (tripsData && tripsData.length > 0) {
+                        tripsData.forEach(t => {
+                            totalKmCasal += t.distance_km || 0;
+                            let imgHtml = t.trip_photo ? `<img src="${t.trip_photo}" alt="${t.title}">` : '';
+                            let badgeVeiculo = t.vehicle_used ? `<p style="color: #fda4af; font-size: 0.85rem; margin-top: 5px;">🏍️ Veículo: ${t.vehicle_used} ${t.two_vehicles ? '(+ 2º veículo junto)' : ''}</p>` : '';
+
+                            tripsList.innerHTML += `
+                                <div class="trip-card">
+                                    ${imgHtml}
+                                    <h4>${t.title}</h4>
+                                    <p>Destino: ${t.destination}</p>
+                                    <p style="font-weight: bold; color: #f472b6;">Distância: ${t.distance_km} km</p>
+                                    ${badgeVeiculo}
+                                </div>`;
+                        });
+                    } else {
+                        tripsList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem cadastrada ainda.</p>`;
+                    }
+
+                    const statTrips = document.getElementById('stat-trips');
+                    const statKm = document.getElementById('stat-km');
+                    if (statTrips) statTrips.innerText = totalTrips;
+                    if (statKm) statKm.innerText = totalKmCasal + " km";
+                }
+            }
+
+            checkUser();
+        });
+    </script>
+</body>
+
+</html>
