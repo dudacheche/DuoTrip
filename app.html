@@ -1,470 +1,318 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DuoTrip - Seu Painel ❤️</title>
-
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: linear-gradient(180deg, #180814 0%, #280f23 50%, #180814 100%);
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-
-        #auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .auth-card {
-            background: rgba(42, 18, 37, 0.85);
-            border: 1px solid rgba(244, 114, 182, 0.25);
-            border-radius: 20px;
-            padding: 35px 25px;
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .auth-card h2 {
-            color: #f472b6;
-            margin-bottom: 8px;
-            font-size: 1.8rem;
-        }
-
-        .auth-card p {
-            color: #fce7f3;
-            font-size: 0.95rem;
-            margin-bottom: 25px;
-            opacity: 0.85;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            color: #fda4af;
-            font-size: 0.88rem;
-            margin-bottom: 6px;
-        }
-
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: 1px solid rgba(244, 114, 182, 0.3);
-            background: rgba(24, 8, 20, 0.7);
-            color: #ffffff;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #fce7f3;
-            font-size: 0.95rem;
-            margin-bottom: 18px;
-            cursor: pointer;
-        }
-
-        .checkbox-group input {
-            width: 18px;
-            height: 18px;
-            accent-color: #e11d48;
-            cursor: pointer;
-        }
-
-        .btn-auth {
-            width: 100%;
-            background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
-            color: #ffffff;
+bottom: 25px;
+            right: 25px;
+            background: #f4ad4e;
+            color: #121316;
+            padding: 12px 24px;
+            border-radius: 12px;
             font-weight: bold;
-            padding: 14px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 8px 20px rgba(225, 29, 72, 0.4);
+            z-index: 3000;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
         }
 
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid rgba(244, 114, 182, 0.4);
-            color: #fce7f3;
-            margin-top: 10px;
-            box-shadow: none;
+        #toast.visivel {
+            transform: translateY(0);
+            opacity: 1;
         }
 
-        #app-container {
-            display: none;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px 20px 60px;
-        }
+        @media (max-width: 600px) {
+            .hero {
+                height: 320px;
+            }
 
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0 25px;
-            border-bottom: 1px solid rgba(244, 114, 182, 0.2);
-            margin-bottom: 30px;
-        }
+            .dashboard-grid {
+                gap: 10px;
+                padding: 14px;
+            }
 
-        .app-logo {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #f472b6;
-        }
+            .card {
+                padding: 15px 8px;
+            }
 
-        .btn-logout {
-            background: transparent;
-            border: 1px solid rgba(244, 114, 182, 0.4);
-            color: #fce7f3;
-            padding: 6px 16px;
-            border-radius: 15px;
-            cursor: pointer;
-        }
+            .card h2 {
+                font-size: 1.35rem;
+            }
 
-        .welcome-section {
-            text-align: center;
-            margin-bottom: 35px;
-        }
+            .card p {
+                font-size: 0.78rem;
+            }
 
-        .counter-card {
-            background: rgba(42, 18, 37, 0.85);
-            border: 1px solid rgba(244, 114, 182, 0.35);
-            border-radius: 24px;
-            padding: 30px 20px;
-            text-align: center;
-            margin-bottom: 35px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-        }
+            .titulo {
+                font-size: 1.5rem;
+            }
 
-        .counter-card h3 {
-            color: #f472b6;
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-        }
+            .form-duas-colunas {
+                grid-template-columns: 1fr;
+            }
 
-        .counter-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            max-width: 500px;
-            margin: 0 auto 20px;
-        }
+            .modal-overlay {
+                padding: 10px;
+            }
 
-        .counter-box {
-            background: rgba(24, 8, 20, 0.6);
-            border: 1px solid rgba(244, 114, 182, 0.2);
-            border-radius: 14px;
-            padding: 12px;
-        }
+            .modal-container {
+                max-height: 95vh;
+            }
 
-        .counter-box .number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #ffffff;
-        }
+            .modal-body {
+                padding: 15px;
+            }
 
-        .counter-box .label {
-            font-size: 0.8rem;
-            color: #fda4af;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            .carrossel {
+                height: 260px;
+            }
         }
-
-        .date-picker-box {
-            font-size: 0.9rem;
-            color: #fce7f3;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .date-picker-box input {
-            background: rgba(24, 8, 20, 0.8);
-            border: 1px solid rgba(244, 114, 182, 0.3);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 8px;
-            outline: none;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 18px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: rgba(42, 18, 37, 0.7);
-            border: 1px solid rgba(244, 114, 182, 0.2);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .stat-card .number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #f472b6;
-        }
-
-        .section-title {
-            font-size: 1.4rem;
-            color: #f472b6;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .btn-add {
-            background: #e11d48;
-            color: #ffffff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .item-card, .trip-card {
-            background: rgba(42, 18, 37, 0.6);
-            border: 1px solid rgba(244, 114, 182, 0.18);
-            border-radius: 14px;
-            overflow: hidden;
-            padding: 20px;
-        }
-
-        .trip-card img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 12px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            z-index: 100;
-        }
-        .modal-content {
-            background: #2a1225;
-            border: 1px solid rgba(244, 114, 182, 0.4);
-            padding: 25px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 400px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-content h3 { color: #f472b6; margin-bottom: 15px; }
-        .btn-close { background: transparent; border: none; color: #fda4af; float: right; cursor: pointer; font-size: 1rem; }
     </style>
 </head>
 
 <body>
 
-    <!-- 1. TELA DE AUTENTICAÇÃO -->
+    <!-- 1. TELA DE AUTENTICAÇÃO DO CASAL -->
     <div id="auth-container">
         <div class="auth-card">
-            <h2>DuoTrip ❤️</h2>
-            <p>Acesse o diário de viagens do casal</p>
+            <h2>DuoTrip ❤️🏍️</h2>
+            <p>Acessem o acervo digital de viagens de vocês</p>
 
             <div class="form-group">
-                <label for="email">E-mail do Casal</label>
-                <input type="email" id="email" placeholder="casal@email.com" required>
+                <label for="loginEmail">E-mail do Casal</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="casal@email.com" autocomplete="username">
             </div>
             <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" placeholder="••••••••" required>
+                <label for="loginSenha">Senha</label>
+                <input type="password" id="loginSenha" class="form-control" placeholder="••••••••" autocomplete="current-password">
             </div>
 
-            <button type="button" class="btn-auth" id="btn-login">Entrar no App 🚀</button>
-            <button type="button" class="btn-auth btn-secondary" id="btn-signup">Criar Conta ✨</button>
+            <button type="button" class="btn-auth" id="btn-login">Entrar no Painel 🚀</button>
+            <button type="button" class="btn-auth btn-auth-secondary" id="btn-signup">Criar Conta ✨</button>
         </div>
     </div>
 
-    <!-- 2. PAINEL DO APP -->
+    <!-- 2. PAINEL COMPLETO DO CASAL -->
     <div id="app-container">
-        <header class="app-header">
-            <div class="app-logo">DuoTrip ❤️</div>
-            <button class="btn-logout" id="btn-logout">Sair</button>
+        <nav class="menu">
+            <div class="menu-logo" id="navCasalNome" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Nosso Acervo ❤️</div>
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" onclick="toggleMenu()">☰</button>
+            <div class="menu-links" id="menuLinks">
+                <a href="#" onclick="toggleMenu()">🏠 Início</a>
+                <a href="#viagens" onclick="toggleMenu()">🏍️ Viagens</a>
+                <a href="#garagem" onclick="toggleMenu()">🏍️ Nossa Garagem</a>
+                <a href="#estatisticas" onclick="toggleMenu()">📊 Estatísticas</a>
+                <button onclick="abrirModalAdmin()">⚙️ Admin</button>
+            </div>
+        </nav>
+
+        <header class="hero">
+            <img id="heroCoverImg" src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1200&q=80" alt="Capa do casal">
+            <div class="overlay">
+                <h1 id="heroTitulo">Asfalto a Dois</h1>
+                <p id="heroSubtitulo">Nossa história sobre duas rodas ❤️🏍️</p>
+            </div>
         </header>
 
-        <section class="welcome-section">
-            <h1>Nossa História na Estrada 💖</h1>
-            <p>Cada quilômetro percorrido juntos ao longo do nosso amor</p>
+        <section id="estatisticas">
+            <h2 class="titulo">📊 Estatísticas</h2>
+            <div class="dashboard-grid" id="statsGrid">
+                <div class="card"><h2 id="diasJuntos">0</h2><p>Dias Juntos</p></div>
+                <div class="card"><h2 id="totalViagens">0</h2><p>Viagens Realizadas</p></div>
+                <div class="card"><h2 id="kmTotal">0 km</h2><p>KM Rodados Juntos</p></div>
+                <div class="card"><h2 id="metaAtual">0%</h2><p>Progresso da Meta</p></div>
+            </div>
         </section>
 
-        <!-- CONTADOR DE TEMPO JUNTOS -->
-        <div class="counter-card">
-            <h3>⏳ Estamos juntos há:</h3>
-            <div class="counter-grid">
-                <div class="counter-box">
-                    <div class="number" id="days-count">0</div>
-                    <div class="label">Dias</div>
-                </div>
-                <div class="counter-box">
-                    <div class="number" id="months-count">0</div>
-                    <div class="label">Meses</div>
-                </div>
-                <div class="counter-box">
-                    <div class="number" id="years-count">0</div>
-                    <div class="label">Anos</div>
-                </div>
-            </div>
-            <div class="date-picker-box">
-                <label for="start-date">Início do Namoro / Viagens:</label>
-                <input type="date" id="start-date" value="2025-01-01" onchange="updateCounter()">
-            </div>
-        </div>
+        <section class="meta">
+            <h3>Meta Atual de Rodagem</h3>
+            <div class="barra"><div id="progresso" style="width: 0%;"></div></div>
+            <p id="textoMeta">0 / 2000 km</p>
+        </section>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="number" id="stat-trips">0</div>
-                <div>Viagens Realizadas</div>
+        <section id="garagem">
+            <h2 class="titulo">🏍️ Nossa Garagem</h2>
+            <div class="garagem-grid" id="garagemGrid">
+                <p style="text-align:center;color:#888;grid-column:1/-1;">Cadastre os veículos do casal em ⚙️ Admin.</p>
             </div>
-            <div class="stat-card">
-                <div class="number" id="stat-km">0 km</div>
-                <div>Total Rodado pelo Casal</div>
+        </section>
+
+        <section id="viagens">
+            <h2 class="titulo">Últimas Aventuras</h2>
+            <div id="listaViagens"></div>
+        </section>
+    </div>
+
+    <!-- MODAL DO ADMINISTRADOR (GERENCIAR VIAGENS, GARAGEM E PERFIL) -->
+    <div id="modalAdmin" class="modal-overlay escondido">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>⚙️ Painel do Administrador</h3>
+                <button class="fechar" onclick="fecharModalAdmin()">&times;</button>
             </div>
-        </div>
+            <div class="modal-body">
+                <div class="admin-topo">
+                    <span class="autenticado" id="adminUserEmail">✓ Conectado</span>
+                    <div>
+                        <button class="btn-secundario" onclick="alterarSenhaAdmin()">🔑 Trocar Senha</button>
+                        <button class="btn-secundario" onclick="sairApp()" style="margin-left:6px;">Sair</button>
+                    </div>
+                </div>
 
-        <!-- GARAGEM -->
-        <div class="section-title">
-            <span>🚗 🏍️ Nossa Garagem</span>
-            <button class="btn-add" onclick="openModal('vehicle-modal')">+ Adicionar Veículo</button>
-        </div>
-        <div class="content-grid" id="garage-list">
-            <p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>
-        </div>
+                <div class="admin-tabs">
+                    <button type="button" class="tab-btn ativa" id="tabBtnViagens" onclick="mudarAbaAdmin('viagens')">🗺️ Viagens</button>
+                    <button type="button" class="tab-btn" id="tabBtnGaragem" onclick="mudarAbaAdmin('garagem')">🏍️ Garagem</button>
+                    <button type="button" class="tab-btn" id="tabBtnConfig" onclick="mudarAbaAdmin('config')">❤️ Perfil & Meta</button>
+                </div>
 
-        <!-- VIAGENS -->
-        <div class="section-title">
-            <span>🗺️ Nossas Viagens</span>
-            <button class="btn-add" onclick="openModal('trip-modal')">+ Registrar Viagem</button>
-        </div>
-        <div class="content-grid" id="trips-list">
-            <p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem cadastrada ainda.</p>
+                <!-- ABA 1: VIAGENS -->
+                <div id="abaViagens">
+                    <h4 id="formTitulo" class="form-titulo">Cadastrar Nova Viagem</h4>
+                    <form id="formViagem" onsubmit="salvarViagem(event)">
+                        <input type="hidden" id="editId" value="">
+                        <div class="form-group">
+                            <label for="destinoInput">Destino / Título da Viagem</label>
+                            <input type="text" id="destinoInput" class="form-control" placeholder="Ex: Serra do Rastro da Serpente" required>
+                        </div>
+                        <div class="form-duas-colunas">
+                            <div class="form-group">
+                                <label for="dataInput">Data da Viagem</label>
+                                <input type="date" id="dataInput" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="kmInput">Distância (KM)</label>
+                                <input type="number" id="kmInput" class="form-control" min="0" placeholder="Ex: 280" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="motoInput">Veículo Utilizado</label>
+                            <select id="motoInput" class="form-control" required>
+                                <option value="Ambas">Todos / Ambos os Veículos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="relatoInput">Relato da viagem</label>
+                            <textarea id="relatoInput" class="form-control" rows="3" placeholder="Conte um pouco sobre essa aventura..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="capaInput">Foto de capa</label>
+                            <input type="file" id="capaInput" class="form-control" accept="image/*" onchange="previewCapa(event)">
+                            <div id="previewCapaContainer" class="preview-capa"><img id="capaPreviewImg" alt="Prévia da capa"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="albumInput">Fotos do álbum</label>
+                            <input type="file" id="albumInput" class="form-control" accept="image/*" multiple onchange="previewAlbum(event)">
+                            <div id="previewAlbumContainer" class="previsualizacao-fotos"></div>
+                        </div>
+                        <button type="submit" class="btn-primario">Salvar viagem</button>
+                        <button type="button" id="btnCancelarEdit" class="btn-secundario btn-cancelar" onclick="resetForm()">Cancelar edição</button>
+                    </form>
+                    <hr class="separador">
+                    <h4 class="form-titulo">Viagens cadastradas</h4>
+                    <div id="adminListaViagens" class="admin-lista"></div>
+                </div>
+
+              <!-- ABA 2: GARAGEM -->
+                <div id="abaGaragem" style="display:none;">
+                    <h4 class="form-titulo">Adicionar Veículo à Garagem</h4>
+                    <form id="formVeiculo" onsubmit="salvarVeiculo(event)">
+                        <div class="form-duas-colunas">
+                            <div class="form-group">
+                                <label>Modelo do Veículo</label>
+                                <input type="text" id="vehNomeInput" class="form-control" placeholder="Ex: Titan 150" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Dono(a)</label>
+                                <input type="text" id="vehDonoInput" class="form-control" placeholder="Ex: Duda" required>
+                            </div>
+                        </div>
+                        <div class="form-duas-colunas">
+                            <div class="form-group">
+                                <label>Ano / Cor</label>
+                                <input type="text" id="vehDetalhesInput" class="form-control" placeholder="Ex: 2013 • Preta">
+                            </div>
+                            <div class="form-group">
+                                <label>Cilindrada / Motor</label>
+                                <input type="text" id="vehMotorInput" class="form-control" placeholder="Ex: 150cc">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>KM Inicial já rodado (antes do app)</label>
+                            <input type="number" id="vehKmInicialInput" class="form-control" min="0" value="0">
+                        </div>
+                        <button type="submit" class="btn-primario">Salvar Veículo</button>
+                    </form>
+                    <hr class="separador">
+                    <h4 class="form-titulo">Veículos na Garagem</h4>
+                    <div id="adminListaVeiculos" class="admin-lista"></div>
+                </div>
+
+                <!-- ABA 3: PERFIL E META DO CASAL -->
+                <div id="abaConfig" style="display:none;">
+                    <h4 class="form-titulo">Personalizar Página do Casal</h4>
+                    <form id="formConfig" onsubmit="salvarConfiguracoes(event)">
+                        <div class="form-group">
+                            <label>Nome do Casal (Menu superior)</label>
+                            <input type="text" id="cfgCasalInput" class="form-control" placeholder="Ex: Duda e Daniel ❤️">
+                        </div>
+                        <div class="form-group">
+                            <label>Título Principal do Banner</label>
+                            <input type="text" id="cfgTituloInput" class="form-control" placeholder="Ex: Asfalto a Dois">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo do Banner</label>
+                            <input type="text" id="cfgSubtituloInput" class="form-control" placeholder="Ex: Nossa história sobre duas rodas ❤️🏍️">
+                        </div>
+                        <div class="form-duas-colunas">
+                            <div class="form-group">
+                                <label>Início do Relacionamento</label>
+                                <input type="date" id="cfgDataInicioInput" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Meta de Rodagem (KM)</label>
+                                <input type="number" id="cfgMetaInput" class="form-control" min="1" value="2000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Foto de Capa Principal (Topo)</label>
+                            <input type="file" id="cfgCapaInput" class="form-control" accept="image/*" onchange="previewHeroCapa(event)">
+                        </div>
+                        <button type="submit" class="btn-primario">Salvar Configurações</button>
+                    </form>
+                </div>
+            </div>
+
+          <!-- MODAL DE ÁLBUM & CARROSSEL DE FOTOS -->
+    <div id="modalAlbum" class="modal-overlay escondido">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modalTitulo">Álbum da viagem</h3>
+                    <p id="modalSubtitulo" class="modal-subtitulo"></p>
+                </div>
+                <button class="fechar" onclick="fecharModalAlbum()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="carrossel">
+                    <img id="carrosselImg" src="" alt="Foto da viagem">
+                    <button class="carrossel-btn prev" onclick="mudarFoto(-1)" aria-label="Foto anterior">❮</button>
+                    <button class="carrossel-btn next" onclick="mudarFoto(1)" aria-label="Próxima foto">❯</button>
+                    <span class="carrossel-contador"><span id="carrosselAtual">1</span> / <span id="carrosselTotal">1</span></span>
+                </div>
+                <div id="modalThumbs" class="galeria-thumbs"></div>
+                <p id="modalRelato" class="modal-relato"></p>
+            </div>
         </div>
     </div>
 
-    <!-- MODAL ADICIONAR VEÍCULO -->
-    <div id="vehicle-modal" class="modal">
-        <div class="modal-content">
-            <button class="btn-close" onclick="closeModal('vehicle-modal')">✕ Fechar</button>
-            <h3>Adicionar Veículo 🚗</h3>
-            <form id="vehicle-form">
-                <div class="form-group">
-                    <label>Nome / Apelido do Veículo</label>
-                    <input type="text" id="vehicle-name" placeholder="Ex: Fan 150 / Titan 150" required>
-                </div>
-                <div class="form-group">
-                    <label>Tipo</label>
-                    <select id="vehicle-type">
-                        <option value="Moto">Moto</option>
-                        <option value="Carro">Carro</option>
-                        <option value="Motorhome">Motorhome</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Quilometragem Inicial (km)</label>
-                    <input type="number" id="vehicle-km" placeholder="Ex: 15400" required>
-                </div>
-                <button type="submit" class="btn-action">Salvar Veículo</button>
-            </form>
-        </div>
-    </div>
+    <!-- NOTIFICAÇÃO TOAST -->
+    <div id="toast" role="status" aria-live="polite"></div>
 
-    <!-- MODAL ADICIONAR VIAGEM -->
-    <div id="trip-modal" class="modal">
-        <div class="modal-content">
-            <button class="btn-close" onclick="closeModal('trip-modal')">✕ Fechar</button>
-            <h3>Registrar Viagem 🗺️</h3>
-            <form id="trip-form">
-                <div class="form-group">
-                    <label>Título da Aventura</label>
-                    <input type="text" id="trip-title" placeholder="Ex: Viagem a Caraguatatuba" required>
-                </div>
-                <div class="form-group">
-                    <label>Destino</label>
-                    <input type="text" id="trip-destination" placeholder="Ex: Caraguatatuba, SP" required>
-                </div>
-                <div class="form-group">
-                    <label>Distância da Viagem (km)</label>
-                    <input type="number" id="trip-km" placeholder="180" required>
-                </div>
-                <div class="form-group">
-                    <label>Veículo Principal Utilizado</label>
-                    <select id="trip-vehicle" required>
-                        <option value="">Carregando veículos...</option>
-                    </select>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="trip-two-vehicles">
-                    <label for="trip-two-vehicles" style="margin-bottom: 0; cursor: pointer;">Viajamos em 2 veículos separados?</label>
-                </div>
-                <div class="form-group">
-                    <label>Link da Foto da Viagem (Opcional)</label>
-                    <input type="url" id="trip-photo" placeholder="https://exemplo.com/foto.jpg">
-                </div>
-                <button type="submit" class="btn-action">Salvar Viagem</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- SCRIPT COM REDIRECIONAMENTO FORÇADO -->
     <script>
-        const SUPABASE_URL = 'https://rbosjykmfuazdkgkcggs.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU';
+        const SUPABASE_URL = "https://rbosjykmfuazdkgkcggs.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_O1sgK9L0Myxd5e38P5eWbA_4L4cq3UU";
+        const CAPA_PADRAO = "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1200&q=80";
 
-        let supabaseClient = null;
-
+        let db = null;
         try {
             if (window.supabase) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
                     auth: {
                         persistSession: true,
                         autoRefreshToken: true,
@@ -473,286 +321,654 @@
                 });
             }
         } catch (e) {
-            console.error("Erro Supabase:", e);
+            console.error("Erro ao iniciar Supabase:", e);
         }
 
-        window.updateCounter = function() {
-            const startDateVal = document.getElementById('start-date').value;
-            if (!startDateVal) return;
+        let currentUser = null;
+        let viagens = [];
+        let veiculos = [];
+        let perfilCasal = {
+            casal_nome: "Nosso Acervo ❤️",
+            titulo_hero: "Asfalto a Dois",
+            subtitulo_hero: "Nossa história sobre duas rodas ❤️🏍️",
+            data_inicio: "2026-02-22",
+            meta_km: 2000,
+            capa_hero: CAPA_PADRAO
+        };
 
-            const start = new Date(startDateVal);
-            const now = new Date();
+        let tempCapaBase64 = "";
+        let tempAlbumBase64 = [];
+        let tempHeroCapaBase64 = "";
+        let viagemAtivaModal = null;
+        let fotoIndexAtiva = 0;
 
-            const diffTime = Math.abs(now - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            let diffYears = now.getFullYear() - start.getFullYear();
-            let diffMonths = now.getMonth() - start.getMonth() + (diffYears * 12);
-            if (now.getDate() < start.getDate()) diffMonths--;
-            
-            diffYears = Math.floor(diffMonths / 12);
-
-            const daysElem = document.getElementById('days-count');
-            const monthsElem = document.getElementById('months-count');
-            const yearsElem = document.getElementById('years-count');
-
-            if (daysElem) daysElem.innerText = diffDays;
-            if (monthsElem) monthsElem.innerText = diffMonths;
-            if (yearsElem) yearsElem.innerText = diffYears;
+        /* UTILITÁRIOS */
+        function mostrarToast(msg) {
+            const t = document.getElementById("toast");
+            if (!t) return;
+            t.innerText = msg;
+            t.classList.add("visivel");
+            clearTimeout(mostrarToast.timer);
+            mostrarToast.timer = setTimeout(() => t.classList.remove("visivel"), 3500);
         }
 
-        window.openModal = function(id) { 
-            const m = document.getElementById(id);
-            if (m) m.style.display = 'flex';
-            if (id === 'trip-modal') loadVehicleSelect();
+        function escapeHtml(value) {
+            return String(value ?? "").replace(/[&<>\"']/g, (c) => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[c]));
         }
 
-        window.closeModal = function(id) { 
-            const m = document.getElementById(id);
-            if (m) m.style.display = 'none'; 
+        function toggleMenu() {
+            const links = document.getElementById("menuLinks");
+            if (links) links.classList.toggle("ativo");
         }
 
-        async function loadVehicleSelect() {
-            if (!supabaseClient) return;
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return;
+        function abrirModalAdmin() {
+            const links = document.getElementById("menuLinks");
+            if (links?.classList.contains("ativo")) links.classList.remove("ativo");
+            document.getElementById("modalAdmin").classList.remove("escondido");
+            renderizarAdminLista();
+            renderizarAdminVeiculos();
+        }
 
-            const { data: garageData } = await supabaseClient.from('garage').select('*').eq('user_id', user.id);
-            const select = document.getElementById('trip-vehicle');
+        function fecharModalAdmin() {
+            document.getElementById("modalAdmin").classList.add("escondido");
+        }
+
+        function mudarAbaAdmin(aba) {
+            document.getElementById("abaViagens").style.display = aba === "viagens" ? "block" : "none";
+            document.getElementById("abaGaragem").style.display = aba === "garagem" ? "block" : "none";
+            document.getElementById("abaConfig").style.display = aba === "config" ? "block" : "none";
+
+            document.getElementById("tabBtnViagens").classList.toggle("ativa", aba === "viagens");
+            document.getElementById("tabBtnGaragem").classList.toggle("ativa", aba === "garagem");
+            document.getElementById("tabBtnConfig").classList.toggle("ativa", aba === "config");
+        }
+
+        /* COMPRESSÃO DE IMAGENS */
+        async function comprimirImagem(file, maxWidth = 1000, maxHeight = 1000, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.width, height = img.height;
+                        if (width > height && width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        } else if (height >= width && height > maxHeight) {
+                            width = Math.round((width * maxHeight) / height);
+                            height = maxHeight;
+                        }
+                        const canvas = document.createElement("canvas");
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL("image/jpeg", quality));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        /* AUTENTICAÇÃO E REDIRECIONAMENTO */
+        function entrarNoPainel(user) {
+            currentUser = user;
+            document.getElementById("auth-container").style.display = "none";
+            document.getElementById("app-container").style.display = "block";
+            const emailEl = document.getElementById("adminUserEmail");
+            if (emailEl) emailEl.innerText = "✓ " + user.email;
+            carregarDadosCasal();
+        }
+
+        async function sairApp() {
+            if (db) await db.auth.signOut();
+            currentUser = null;
+            fecharModalAdmin();
+            document.getElementById("auth-container").style.display = "flex";
+            document.getElementById("app-container").style.display = "none";
+            mostrarToast("Você saiu da conta.");
+        }
+
+        async function alterarSenhaAdmin() {
+            const nova = prompt("Digite a nova senha (mínimo 6 caracteres):");
+            if (!nova || !nova.trim()) return;
+            const { error } = await db.auth.updateUser({ password: nova.trim() });
+            if (error) mostrarToast("Erro ao alterar senha: " + error.message);
+            else mostrarToast("Senha atualizada com sucesso!");
+        }
+
+      /* CARREGAR DADOS DO CASAL NO SUPABASE */
+        async function carregarDadosCasal() {
+            if (!db || !currentUser) return;
+
+            // 1. Perfil e Configurações
+            const { data: cfg } = await db.from("couple_profiles").select("*").eq("user_id", currentUser.id).maybeSingle();
+            if (cfg) {
+                perfilCasal = {
+                    casal_nome: cfg.casal_nome || "Nosso Acervo ❤️",
+                    titulo_hero: cfg.titulo_hero || "Asfalto a Dois",
+                    subtitulo_hero: cfg.subtitulo_hero || "Nossa história sobre duas rodas ❤️🏍️",
+                    data_inicio: cfg.data_inicio || "2026-02-22",
+                    meta_km: Number(cfg.meta_km) || 2000,
+                    capa_hero: cfg.capa_hero || CAPA_PADRAO
+                };
+            }
+            aplicarPerfilNaTela();
+
+            // 2. Garagem / Veículos
+            const { data: garageData } = await db.from("garage").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: true });
+            veiculos = garageData || [];
+            atualizarSelectVeiculos();
+
+            // 3. Viagens
+            const { data: tripsData } = await db.from("trips").select("*").eq("user_id", currentUser.id).order("trip_date", { ascending: false });
+            viagens = tripsData || [];
+
+            atualizarEstatisticas();
+            renderizarGaragem();
+            renderizarViagens();
+            renderizarAdminLista();
+            renderizarAdminVeiculos();
+        }
+
+        function aplicarPerfilNaTela() {
+            document.getElementById("navCasalNome").innerText = perfilCasal.casal_nome;
+            document.getElementById("heroTitulo").innerText = perfilCasal.titulo_hero;
+            document.getElementById("heroSubtitulo").innerText = perfilCasal.subtitulo_hero;
+            document.getElementById("heroCoverImg").src = perfilCasal.capa_hero || CAPA_PADRAO;
+
+            document.getElementById("cfgCasalInput").value = perfilCasal.casal_nome;
+            document.getElementById("cfgTituloInput").value = perfilCasal.titulo_hero;
+            document.getElementById("cfgSubtituloInput").value = perfilCasal.subtitulo_hero;
+            document.getElementById("cfgDataInicioInput").value = perfilCasal.data_inicio;
+            document.getElementById("cfgMetaInput").value = perfilCasal.meta_km;
+        }
+
+        function calcularDiasJuntos() {
+            const inicio = new Date((perfilCasal.data_inicio || "2026-02-22") + "T00:00:00");
+            const hoje = new Date();
+            inicio.setHours(0, 0, 0, 0);
+            hoje.setHours(0, 0, 0, 0);
+            return Math.max(0, Math.floor((hoje.getTime() - inicio.getTime()) / 86400000));
+        }
+
+        function atualizarEstatisticas() {
+            let totalKmViagens = 0;
+            const kmPorVeiculo = {};
+
+            veiculos.forEach(v => {
+                kmPorVeiculo[v.vehicle_name] = Number(v.vehicle_km) || 0;
+            });
+
+            viagens.forEach(v => {
+                const km = Number(v.distance_km) || 0;
+                totalKmViagens += km;
+
+                if (v.vehicle_used === "Ambas") {
+                    veiculos.forEach(veh => {
+                        kmPorVeiculo[veh.vehicle_name] = (kmPorVeiculo[veh.vehicle_name] || 0) + km;
+                    });
+                } else if (v.vehicle_used && kmPorVeiculo[v.vehicle_used] !== undefined) {
+                    kmPorVeiculo[v.vehicle_used] += km;
+                }
+            });
+
+            const grid = document.getElementById("statsGrid");
+            let cardsHtml = `
+                <div class="card"><h2>${calcularDiasJuntos()}</h2><p>Dias Juntos</p></div>
+                <div class="card"><h2>${viagens.length}</h2><p>Viagens Realizadas</p></div>
+            `;
+
+            veiculos.forEach(veh => {
+                const kmVeh = kmPorVeiculo[veh.vehicle_name] || 0;
+                cardsHtml += `<div class="card"><h2>${kmVeh.toLocaleString("pt-BR")} km</h2><p>KM ${escapeHtml(veh.vehicle_name)}</p></div>`;
+            });
+
+            cardsHtml += `
+                <div class="card"><h2>${totalKmViagens.toLocaleString("pt-BR")} km</h2><p>KM Rodados Juntos</p></div>
+                <div class="card"><h2 id="metaAtual">0%</h2><p>Progresso da Meta</p></div>
+            `;
+            grid.innerHTML = cardsHtml;
+
+            const metaAlvo = Number(perfilCasal.meta_km) || 2000;
+            const pct = Math.min(Math.round((totalKmViagens / metaAlvo) * 100), 100);
+            document.getElementById("metaAtual").innerText = `${pct}%`;
+            document.getElementById("progresso").style.width = `${pct}%`;
+            document.getElementById("textoMeta").innerText = `${totalKmViagens.toLocaleString("pt-BR")} / ${metaAlvo} km`;
+
+            return kmPorVeiculo;
+        }
+
+        function renderizarGaragem() {
+            const kmPorVeiculo = atualizarEstatisticas();
+            const cont = document.getElementById("garagemGrid");
+            if (!veiculos.length) {
+                cont.innerHTML = `<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum veículo cadastrado ainda. Clique em ⚙️ Admin para adicionar.</p>`;
+                return;
+            }
+            cont.innerHTML = veiculos.map(v => {
+                const kmTotalVeh = kmPorVeiculo[v.vehicle_name] || 0;
+                return `
+                <div class="moto-card-compacto">
+                    <h3>🏍️ ${escapeHtml(v.vehicle_name)}</h3>
+                    <p><strong>${escapeHtml(v.owner_name || "Casal")}</strong> ${v.details ? "• " + escapeHtml(v.details) : ""}</p>
+                    ${v.engine ? `<p>Motor: ${escapeHtml(v.engine)}</p>` : ""}
+                    <p>KM: <span class="km-destaque">${kmTotalVeh.toLocaleString("pt-BR")} km</span></p>
+                </div>`;
+            }).join("");
+        }
+
+        function atualizarSelectVeiculos() {
+            const select = document.getElementById("motoInput");
             if (!select) return;
-            
-            select.innerHTML = '';
+            let opts = "";
+            veiculos.forEach(v => {
+                opts += `<option value="${escapeHtml(v.vehicle_name)}">${escapeHtml(v.vehicle_name)} (${escapeHtml(v.owner_name || "Casal")})</option>`;
+            });
+            opts += `<option value="Ambas">Todos / Ambos os Veículos</option>`;
+            select.innerHTML = opts;
+        }
 
-            if (garageData && garageData.length > 0) {
-                garageData.forEach(v => {
-                    select.innerHTML += `<option value="${v.vehicle_name}">${v.vehicle_name} (${v.vehicle_type})</option>`;
-                });
-            } else {
-                select.innerHTML = `<option value="">Cadastre um veículo na garagem primeiro!</option>`;
+        function renderizarViagens() {
+            const lista = document.getElementById("listaViagens");
+            if (!viagens.length) {
+                lista.innerHTML = `<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhuma viagem cadastrada ainda. Clique em ⚙️ Admin para registrar a primeira!</p>`;
+                return;
+            }
+            lista.innerHTML = viagens.map(v => {
+                let albumArray = [];
+                try {
+                    albumArray = Array.isArray(v.album_photos) ? v.album_photos : JSON.parse(v.album_photos || "[]");
+                } catch { albumArray = []; }
+
+                const numFotos = albumArray.length || (v.trip_photo ? 1 : 0);
+                const dataFormatada = v.trip_date ? new Date(v.trip_date + "T00:00:00").toLocaleDateString("pt-BR") : "Data não informada";
+                const capaImg = v.trip_photo || albumArray[0] || CAPA_PADRAO;
+
+                return `
+                <div class="viagem-card" onclick="abrirAlbumModal('${escapeHtml(v.id)}')">
+                    <img class="viagem-capa" src="${escapeHtml(capaImg)}" alt="${escapeHtml(v.title)}" onerror="this.src='${CAPA_PADRAO}'">
+                    <div class="viagem-topo">
+                        <span class="viagem-etiqueta">🏍️ ${escapeHtml(v.vehicle_used || "Viagem")}</span>
+                        <span class="viagem-data">${escapeHtml(dataFormatada)}</span>
+                    </div>
+                    <h3 class="viagem-cidade">${escapeHtml(v.title)}</h3>
+                    <p class="viagem-descricao">${escapeHtml(v.description || "Clique para ver as fotos e relato.")}</p>
+                    <div class="viagem-distancia">
+                        <span class="viagem-icone">🛣️</span>
+                        <div class="viagem-texto-distancia">
+                            <span class="viagem-km">${Number(v.distance_km) || 0} KM</span>
+                            <span class="viagem-legenda">Distância Rodada</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-abrir-album">🖼️ Ver Álbum (${numFotos} fotos)</button>
+                </div>`;
+            }).join("");
+                                                                                    }
+      /* PRÉ-VISUALIZAÇÕES DE FOTOS */
+        async function previewCapa(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            try {
+                tempCapaBase64 = await comprimirImagem(file);
+                document.getElementById("capaPreviewImg").src = tempCapaBase64;
+                document.getElementById("previewCapaContainer").style.display = "block";
+            } catch {
+                mostrarToast("Erro ao processar imagem da capa.");
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const authContainer = document.getElementById('auth-container');
-            const appContainer = document.getElementById('app-container');
-            const btnLogin = document.getElementById('btn-login');
-            const btnSignup = document.getElementById('btn-signup');
-            const btnLogout = document.getElementById('btn-logout');
+        async function previewHeroCapa(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            try {
+                tempHeroCapaBase64 = await comprimirImagem(file, 1400, 800, 0.75);
+                mostrarToast("Imagem de capa pronta para salvar!");
+            } catch {
+                mostrarToast("Erro ao processar imagem.");
+            }
+        }
 
-            function redirectToApp(userId) {
-                authContainer.style.display = 'none';
-                appContainer.style.display = 'block';
-                loadUserData(userId);
-                updateCounter();
+        async function previewAlbum(event) {
+            const files = Array.from(event.target.files || []);
+            tempAlbumBase64 = [];
+            const container = document.getElementById("previewAlbumContainer");
+            container.innerHTML = "";
+            for (const file of files) {
+                try {
+                    const imgData = await comprimirImagem(file, 900, 900, 0.65);
+                    tempAlbumBase64.push(imgData);
+                    const img = document.createElement("img");
+                    img.src = imgData;
+                    img.className = "mini-preview";
+                    container.appendChild(img);
+                } catch (err) {
+                    console.error("Erro ao processar foto:", err);
+                }
+            }
+        }
+
+        /* SALVAR VIAGEM */
+        async function salvarViagem(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const editId = document.getElementById("editId").value;
+            const title = document.getElementById("destinoInput").value.trim();
+            const trip_date = document.getElementById("dataInput").value;
+            const distance_km = Number(document.getElementById("kmInput").value);
+            const vehicle_used = document.getElementById("motoInput").value;
+            const description = document.getElementById("relatoInput").value.trim();
+
+            const submit = document.querySelector("#formViagem button[type='submit']");
+            submit.disabled = true;
+            submit.textContent = "Salvando…";
+
+            try {
+                const existente = editId ? viagens.find(v => String(v.id) === String(editId)) : null;
+                let capaFinal = tempCapaBase64 || (existente ? existente.trip_photo : "");
+                let albumFinal = [];
+
+                if (tempAlbumBase64.length > 0) {
+                    albumFinal = tempAlbumBase64;
+                    if (!capaFinal) capaFinal = albumFinal[0];
+                } else if (existente && existente.album_photos) {
+                    albumFinal = Array.isArray(existente.album_photos) ? existente.album_photos : JSON.parse(existente.album_photos || "[]");
+                }
+
+                const payload = {
+                    user_id: currentUser.id,
+                    title,
+                    destination: title,
+                    trip_date,
+                    distance_km,
+                    vehicle_used,
+                    description,
+                    trip_photo: capaFinal || CAPA_PADRAO,
+                    album_photos: albumFinal
+                };
+
+                if (editId) {
+                    const { error } = await db.from("trips").update(payload).eq("id", editId).eq("user_id", currentUser.id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await db.from("trips").insert([payload]);
+                    if (error) throw error;
+                }
+
+                resetForm();
+                await carregarDadosCasal();
+                mostrarToast(editId ? "Viagem atualizada!" : "Viagem salva com sucesso!");
+            } catch (err) {
+                mostrarToast("Erro ao salvar: " + err.message);
+            } finally {
+                submit.disabled = false;
+                submit.textContent = "Salvar viagem";
+            }
+        }
+
+        function resetForm() {
+            document.getElementById("formViagem").reset();
+            document.getElementById("editId").value = "";
+            tempCapaBase64 = "";
+            tempAlbumBase64 = [];
+            document.getElementById("previewCapaContainer").style.display = "none";
+            document.getElementById("previewAlbumContainer").innerHTML = "";
+            document.getElementById("formTitulo").innerText = "Cadastrar Nova Viagem";
+            document.getElementById("btnCancelarEdit").style.display = "none";
+        }
+
+        function editarViagemAdmin(id) {
+            const v = viagens.find(item => String(item.id) === String(id));
+            if (!v) return;
+            document.getElementById("editId").value = v.id;
+            document.getElementById("destinoInput").value = v.title;
+            document.getElementById("dataInput").value = v.trip_date || "";
+            document.getElementById("kmInput").value = v.distance_km;
+            document.getElementById("motoInput").value = v.vehicle_used || "Ambas";
+            document.getElementById("relatoInput").value = v.description || "";
+            tempCapaBase64 = "";
+            tempAlbumBase64 = [];
+            if (v.trip_photo) {
+                document.getElementById("capaPreviewImg").src = v.trip_photo;
+                document.getElementById("previewCapaContainer").style.display = "block";
+            }
+            document.getElementById("formTitulo").innerText = "Editar Viagem";
+            document.getElementById("btnCancelarEdit").style.display = "block";
+        }
+
+        async function excluirViagemAdmin(id) {
+            if (!confirm("Excluir esta viagem permanentemente?")) return;
+            const { error } = await db.from("trips").delete().eq("id", id).eq("user_id", currentUser.id);
+            if (error) mostrarToast("Erro ao excluir: " + error.message);
+            else {
+                await carregarDadosCasal();
+                mostrarToast("Viagem removida.");
+            }
+      }
+
+      function renderizarAdminLista() {
+            const cont = document.getElementById("adminListaViagens");
+            if (!cont) return;
+            if (!viagens.length) {
+                cont.innerHTML = "<p style='color:#777;font-size:.85rem;'>Nenhuma viagem salva.</p>";
+                return;
+            }
+            cont.innerHTML = viagens.map(v => `
+                <div class="admin-viagem-item">
+                    <div>
+                        <strong class="admin-destino">${escapeHtml(v.title)}</strong>
+                        <span class="admin-km">${Number(v.distance_km) || 0} KM • ${escapeHtml(v.vehicle_used || "")}</span>
+                    </div>
+                    <div>
+                        <button class="btn-secundario" onclick="editarViagemAdmin('${escapeHtml(v.id)}')">✏️ Editar</button>
+                        <button class="btn-secundario btn-excluir" onclick="excluirViagemAdmin('${escapeHtml(v.id)}')">🗑️</button>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        /* GARAGEM ADMIN */
+        async function salvarVeiculo(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+            const vehicle_name = document.getElementById("vehNomeInput").value.trim();
+            const owner_name = document.getElementById("vehDonoInput").value.trim();
+            const details = document.getElementById("vehDetalhesInput").value.trim();
+            const engine = document.getElementById("vehMotorInput").value.trim();
+            const vehicle_km = Number(document.getElementById("vehKmInicialInput").value) || 0;
+
+            const { error } = await db.from("garage").insert([{
+                user_id: currentUser.id,
+                vehicle_name,
+                owner_name,
+                details,
+                engine,
+                vehicle_km
+            }]);
+
+            if (error) mostrarToast("Erro ao salvar veículo: " + error.message);
+            else {
+                document.getElementById("formVeiculo").reset();
+                await carregarDadosCasal();
+                mostrarToast("Veículo adicionado à garagem!");
+            }
+        }
+
+        async function excluirVeiculoAdmin(id) {
+            if (!confirm("Remover este veículo da garagem?")) return;
+            const { error } = await db.from("garage").delete().eq("id", id).eq("user_id", currentUser.id);
+            if (error) mostrarToast("Erro: " + error.message);
+            else {
+                await carregarDadosCasal();
+                mostrarToast("Veículo removido.");
+            }
+        }
+
+        function renderizarAdminVeiculos() {
+            const cont = document.getElementById("adminListaVeiculos");
+            if (!cont) return;
+            if (!veiculos.length) {
+                cont.innerHTML = "<p style='color:#777;font-size:.85rem;'>Nenhum veículo na garagem.</p>";
+                return;
+            }
+            cont.innerHTML = veiculos.map(v => `
+                <div class="admin-viagem-item">
+                    <div>
+                        <strong class="admin-destino">${escapeHtml(v.vehicle_name)} (${escapeHtml(v.owner_name || "")})</strong>
+                        <span class="admin-km">KM Inicial: ${Number(v.vehicle_km) || 0} km</span>
+                    </div>
+                    <button class="btn-secundario btn-excluir" onclick="excluirVeiculoAdmin('${escapeHtml(v.id)}')">🗑️</button>
+                </div>
+            `).join("");
+        }
+
+        /* SALVAR PERFIL E META */
+        async function salvarConfiguracoes(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const payload = {
+                user_id: currentUser.id,
+                casal_nome: document.getElementById("cfgCasalInput").value.trim() || "Nosso Acervo ❤️",
+                titulo_hero: document.getElementById("cfgTituloInput").value.trim() || "Asfalto a Dois",
+                subtitulo_hero: document.getElementById("cfgSubtituloInput").value.trim() || "Nossa história sobre duas rodas ❤️🏍️",
+                data_inicio: document.getElementById("cfgDataInicioInput").value || "2026-02-22",
+                meta_km: Number(document.getElementById("cfgMetaInput").value) || 2000,
+                capa_hero: tempHeroCapaBase64 || perfilCasal.capa_hero
+            };
+
+            const { error } = await db.from("couple_profiles").upsert(payload, { onConflict: "user_id" });
+            if (error) {
+                mostrarToast("Erro ao salvar perfil: " + error.message);
+            } else {
+                tempHeroCapaBase64 = "";
+                await carregarDadosCasal();
+                mostrarToast("Configurações do casal salvas!");
+            }
+        }
+
+        /* ÁLBUM E CARROSSEL */
+        function abrirAlbumModal(id) {
+            viagemAtivaModal = viagens.find(v => String(v.id) === String(id));
+            if (!viagemAtivaModal) return;
+            fotoIndexAtiva = 0;
+
+            document.getElementById("modalTitulo").innerText = viagemAtivaModal.title;
+            const dataFmt = viagemAtivaModal.trip_date ? new Date(viagemAtivaModal.trip_date + "T00:00:00").toLocaleDateString("pt-BR") : "Data não informada";
+            document.getElementById("modalSubtitulo").innerText = `${dataFmt} • ${viagemAtivaModal.distance_km} KM • Veículo: ${viagemAtivaModal.vehicle_used || "N/A"}`;
+            document.getElementById("modalRelato").innerText = viagemAtivaModal.description || "Sem história/relato cadastrado.";
+
+            renderizarCarrossel();
+            document.getElementById("modalAlbum").classList.remove("escondido");
+        }
+
+        function fecharModalAlbum() {
+            document.getElementById("modalAlbum").classList.add("escondido");
+            viagemAtivaModal = null;
+        }
+
+        function renderizarCarrossel() {
+            if (!viagemAtivaModal) return;
+            let fotos = [];
+            try {
+                fotos = Array.isArray(viagemAtivaModal.album_photos) ? viagemAtivaModal.album_photos : JSON.parse(viagemAtivaModal.album_photos || "[]");
+            } catch { fotos = []; }
+
+            if (!fotos.length) fotos = [viagemAtivaModal.trip_photo || CAPA_PADRAO];
+
+            fotoIndexAtiva = ((fotoIndexAtiva % fotos.length) + fotos.length) % fotos.length;
+            document.getElementById("carrosselImg").src = fotos[fotoIndexAtiva];
+            document.getElementById("carrosselAtual").innerText = fotoIndexAtiva + 1;
+            document.getElementById("carrosselTotal").innerText = fotos.length;
+            document.getElementById("modalThumbs").innerHTML = fotos.map((f, idx) => `
+                <img src="${escapeHtml(f)}" alt="Miniatura ${idx + 1}" class="thumb ${idx === fotoIndexAtiva ? "ativa" : ""}" onclick="selecionarFoto(${idx})">
+            `).join("");
+        }
+
+        function mudarFoto(dir) {
+            if (!viagemAtivaModal) return;
+            let fotos = [];
+            try {
+                fotos = Array.isArray(viagemAtivaModal.album_photos) ? viagemAtivaModal.album_photos : JSON.parse(viagemAtivaModal.album_photos || "[]");
+            } catch { fotos = []; }
+            if (!fotos.length) fotos = [viagemAtivaModal.trip_photo || CAPA_PADRAO];
+            fotoIndexAtiva = (fotoIndexAtiva + dir + fotos.length) % fotos.length;
+            renderizarCarrossel();
+        }
+
+        function selecionarFoto(idx) {
+            fotoIndexAtiva = idx;
+            renderizarCarrossel();
             }
 
-            // Ação de Login
-            if (btnLogin) {
-                btnLogin.addEventListener('click', async () => {
-                    if (!supabaseClient) return alert("Erro: Supabase não conectado.");
-                    const email = document.getElementById('email').value.trim();
-                    const password = document.getElementById('password').value;
+      /* INICIALIZAÇÃO DOS BOTÕES DE LOGIN/CADASTRO */
+        window.addEventListener("DOMContentLoaded", async () => {
+            const btnLogin = document.getElementById("btn-login");
+            const btnSignup = document.getElementById("btn-signup");
 
-                    if (!email || !password) {
-                        alert("Preencha o e-mail e a senha!");
-                        return;
-                    }
+            if (btnLogin) {
+                btnLogin.addEventListener("click", async () => {
+                    if (!db) return alert("Erro: Supabase não conectado.");
+                    const email = document.getElementById("loginEmail").value.trim();
+                    const password = document.getElementById("loginSenha").value;
+                    if (!email || !password) return alert("Preencha o e-mail e a senha!");
 
                     btnLogin.disabled = true;
                     btnLogin.innerText = "Entrando...";
-
                     try {
-                        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                        const { data, error } = await db.auth.signInWithPassword({ email, password });
                         if (error) throw error;
-                        if (data.user) {
-                            redirectToApp(data.user.id);
-                        }
-                    } catch (error) {
-                        alert("Erro ao entrar: " + error.message);
+                        if (data.user) entrarNoPainel(data.user);
+                    } catch (err) {
+                        alert("Erro ao entrar: " + err.message);
                     } finally {
                         btnLogin.disabled = false;
-                        btnLogin.innerText = "Entrar no App 🚀";
+                        btnLogin.innerText = "Entrar no Painel 🚀";
                     }
                 });
             }
 
-            // Ação de Criar Conta
             if (btnSignup) {
-                btnSignup.addEventListener('click', async () => {
-                    if (!supabaseClient) return alert("Erro: Supabase não conectado.");
-                    const email = document.getElementById('email').value.trim();
-                    const password = document.getElementById('password').value;
-
-                    if (!email || !password) {
-                        alert("Preencha o e-mail e a senha para criar a senha para criar a conta!");
-                        return;
-                    }
+                btnSignup.addEventListener("click", async () => {
+                    if (!db) return alert("Erro: Supabase não conectado.");
+                    const email = document.getElementById("loginEmail").value.trim();
+                    const password = document.getElementById("loginSenha").value;
+                    if (!email || !password) return alert("Preencha o e-mail e a senha para criar a conta!");
 
                     btnSignup.disabled = true;
                     btnSignup.innerText = "Criando conta...";
-
                     try {
-                        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                        const { data, error } = await db.auth.signUp({ email, password });
                         if (error) throw error;
-                        
-                        alert("Conta criada com sucesso!");
                         if (data.user) {
-                            redirectToApp(data.user.id);
+                            alert("Conta criada com sucesso!");
+                            entrarNoPainel(data.user);
                         }
-                    } catch (error) {
-                        alert("Erro ao criar conta: " + error.message);
+                    } catch (err) {
+                        alert("Erro ao criar conta: " + err.message);
                     } finally {
                         btnSignup.disabled = false;
                         btnSignup.innerText = "Criar Conta ✨";
                     }
                 });
-      }
-          if (btnLogout) {
-                btnLogout.addEventListener('click', async () => {
-                    if (supabaseClient) {
-                        await supabaseClient.auth.signOut();
-                        authContainer.style.display = 'flex';
-                        appContainer.style.display = 'none';
-                    }
-                });
             }
 
-            async function checkUser() {
-                if (!supabaseClient) return;
-                try {
-                    const { data: { user } } = await supabaseClient.auth.getUser();
-                    if (user) {
-                        redirectToApp(user.id);
-                    }
-                } catch (err) {
-                    authContainer.style.display = 'flex';
-                    appContainer.style.display = 'none';
+            // Verifica se já está logado
+            if (db) {
+                const { data } = await db.auth.getSession();
+                if (data?.session?.user) {
+                    entrarNoPainel(data.session.user);
                 }
             }
-
-            const vehicleForm = document.getElementById('vehicle-form');
-            if (vehicleForm) {
-                vehicleForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const { data: { user } } = await supabaseClient.auth.getUser();
-                    if (!user) return;
-
-                    const vehicle_name = document.getElementById('vehicle-name').value;
-                    const vehicle_type = document.getElementById('vehicle-type').value;
-                    const vehicle_km = parseInt(document.getElementById('vehicle-km').value) || 0;
-
-                    const { error } = await supabaseClient.from('garage').insert([{
-                        user_id: user.id,
-                        vehicle_name,
-                        vehicle_type,
-                        vehicle_km
-                    }]);
-
-                    if (error) {
-                        alert("Erro ao salvar veículo: " + error.message);
-                    } else {
-                        closeModal('vehicle-modal');
-                        vehicleForm.reset();
-                        loadUserData(user.id);
-                    }
-                });
-            }
-          const tripForm = document.getElementById('trip-form');
-            if (tripForm) {
-                tripForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const { data: { user } } = await supabaseClient.auth.getUser();
-                    if (!user) return;
-
-                    const title = document.getElementById('trip-title').value;
-                    const destination = document.getElementById('trip-destination').value;
-                    const distance_km = parseInt(document.getElementById('trip-km').value) || 0;
-                    const vehicle_used = document.getElementById('trip-vehicle').value;
-                    const two_vehicles = document.getElementById('trip-two-vehicles').checked;
-                    const trip_photo = document.getElementById('trip-photo').value;
-
-                    if (!vehicle_used) {
-                        alert("Por favor, selecione um veículo.");
-                        return;
-                    }
-
-                    const { error: tripError } = await supabaseClient.from('trips').insert([{
-                        user_id: user.id,
-                        title,
-                        destination,
-                        distance_km,
-                        vehicle_used,
-                        two_vehicles,
-                        trip_photo
-                    }]);
-
-                    if (tripError) {
-                        alert("Erro ao salvar viagem: " + tripError.message);
-                        return;
-                    }
-
-                    // Atualizar KM do veículo selecionado
-                    const { data: vehData } = await supabaseClient.from('garage').select('*').eq('user_id', user.id).eq('vehicle_name', vehicle_used).single();
-                    if (vehData) {
-                        const novoKm = (vehData.vehicle_km || 0) + distance_km;
-                        await supabaseClient.from('garage').update({ vehicle_km: novoKm }).eq('id', vehData.id);
-                    }
-
-                    closeModal('trip-modal');
-                    tripForm.reset();
-                    loadUserData(user.id);
-                });
-            }
-          async function loadUserData(userId) {
-                if (!supabaseClient) return;
-
-                const { data: garageData } = await supabaseClient.from('garage').select('*').eq('user_id', userId);
-                const garageList = document.getElementById('garage-list');
-                if (garageList) {
-                    garageList.innerHTML = '';
-                    if (garageData && garageData.length > 0) {
-                        garageData.forEach(v => {
-                            garageList.innerHTML += `<div class="item-card"><h3>${v.vehicle_name}</h3><p>Tipo: ${v.vehicle_type}</p><p style="color: #f472b6; font-weight: bold; margin-top: 5px;">📍 KM Acumulado: ${v.vehicle_km || 0} km</p></div>`;
-                        });
-                    } else {
-                        garageList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhum veículo cadastrado ainda.</p>`;
-                    }
-                }
-
-                const { data: tripsData } = await supabaseClient.from('trips').select('*').eq('user_id', userId);
-                const tripsList = document.getElementById('trips-list');
-                if (tripsList) {
-                    tripsList.innerHTML = '';
-                    let totalKmCasal = 0;
-                    let totalTrips = tripsData ? tripsData.length : 0;
-
-                    if (tripsData && tripsData.length > 0) {
-                        tripsData.forEach(t => {
-                            totalKmCasal += t.distance_km || 0;
-                            let imgHtml = t.trip_photo ? `<img src="${t.trip_photo}" alt="${t.title}">` : '';
-                            let badgeVeiculo = t.vehicle_used ? `<p style="color: #fda4af; font-size: 0.85rem; margin-top: 5px;">🏍️ Veículo: ${t.vehicle_used} ${t.two_vehicles ? '(+ 2º veículo junto)' : ''}</p>` : '';
-
-                            tripsList.innerHTML += `
-                                <div class="trip-card">
-                                    ${imgHtml}
-                                    <h4>${t.title}</h4>
-                                    <p>Destino: ${t.destination}</p>
-                                    <p style="font-weight: bold; color: #f472b6;">Distância: ${t.distance_km} km</p>
-                                    ${badgeVeiculo}
-                                </div>`;
-                        });
-                    } else {
-                        tripsList.innerHTML = `<p style="color: #fce7f3; opacity: 0.7;">Nenhuma viagem cadastrada ainda.</p>`;
-                    }
-
-                    const statTrips = document.getElementById('stat-trips');
-                    const statKm = document.getElementById('stat-km');
-                    if (statTrips) statTrips.innerText = totalTrips;
-                    if (statKm) statKm.innerText = totalKmCasal + " km";
-                }
-            }
-
-            checkUser();
         });
     </script>
 </body>
